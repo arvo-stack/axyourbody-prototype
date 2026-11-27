@@ -1,5 +1,5 @@
 CORE: 5
-MINOR: 21
+MINOR: 20
 STALL: 0
 
 # deslop 작업 기록
