@@ -9,172 +9,240 @@
 <style>
 :root{
   color-scheme: light;
-  --ink:#1d1d1f; --ink-80:#333336; --muted:#86868b; --muted-2:#6e6e73;
+  --primary:#1d1d1f;
+  --ink:#1d1d1f; --ink-80:#3a3a3c; --muted:#6e6e73;
   --canvas:#ffffff; --parchment:#f5f5f7; --pearl:#fafafc; --hairline:#e5e5ea; --divider:#f0f0f0;
-  --tile:#1c1c1e; --tile-2:#2c2c2e; --chip:#e8e8ed;
-  --blue:#0066cc; --blue-soft:#e8f1fb;
-  --r-sm:10px; --r-md:14px; --r-lg:20px; --pill:9999px;
+  --tile:#1c1c1e; --chip:#e8e8ed;
+  --blue:#0066cc; --blue-ink:#00438a; --blue-soft:#e8f1fb;
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --pill:9999px;
+  --fs-fine:12px; --fs-cap:14px; --fs-body:17px; --fs-md:20px; --fs-lg:26px; --fs-hero:34px; --fs-xl:56px;
+  --nav-w:240px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
   --font-d: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--parchment);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.47;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body{background:var(--parchment);color:var(--ink);font-family:var(--font);font-size:var(--fs-body);line-height:1.47;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:var(--r-sm)}
 .ic{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.ic.s{width:16px;height:16px}.ic.l{width:28px;height:28px}.ic.fill{fill:currentColor;stroke:none}
+.ic.s{width:16px;height:16px}.ic.l{width:32px;height:32px}.ic.fill{fill:currentColor;stroke:none}
 
-/* ---------- stage ---------- */
-.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:48px;padding:32px 16px}
-.panel{width:280px;align-self:stretch;max-height:calc(100vh - 64px);overflow:auto;position:sticky;top:32px}
-.panel h1{font-family:var(--font-d);font-size:22px;font-weight:600;letter-spacing:-0.02em}
-.panel .sub{font-size:13px;color:var(--muted-2);margin:6px 0 20px;line-height:1.5}
-.panel h2{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 6px}
-.panel button{display:flex;width:100%;text-align:left;padding:8px 10px;border-radius:var(--r-sm);font-size:14px;gap:8px;align-items:baseline}
-.panel button:hover{background:#ebebf0}
-.panel button.on{background:var(--tile);color:#fff}
-.panel button .n{font-size:12px;color:var(--muted);min-width:18px}
-.panel button.on .n{color:#aeaeb2}
-.panel .foot{font-size:12px;color:var(--muted);margin-top:20px;line-height:1.5}
-.menu-btn{display:none}
+/* ---------- 틀 ---------- */
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.phone{width:390px;height:844px;background:var(--canvas);border-radius:48px;box-shadow:0 0 0 12px #111,0 32px 64px rgba(0,0,0,.25);position:relative;overflow:hidden;flex:none}
+.appnav{display:none}
 
-.phone{width:390px;height:844px;background:var(--canvas);border-radius:48px;box-shadow:0 0 0 10px #111,0 30px 80px rgba(0,0,0,.25);position:relative;overflow:hidden;flex:none}
+/* 검토용 화면 목록 (기본 숨김) */
+.review-open{position:fixed;right:16px;bottom:16px;z-index:90;background:var(--canvas);color:var(--blue);border:1px solid var(--hairline);border-radius:var(--pill);padding:8px 12px;font-size:var(--fs-fine);font-weight:600}
+.review-open:hover{background:var(--parchment)}
+.panel{display:none;position:fixed;top:0;right:0;bottom:0;width:320px;max-width:100%;background:var(--canvas);box-shadow:-1px 0 0 var(--hairline),-8px 0 24px rgba(0,0,0,.08);z-index:100;padding:24px 20px;overflow:auto}
+.panel.open{display:block}
+.panel h1{font-family:var(--font-d);font-size:var(--fs-md);font-weight:600}
+.panel .sub{font-size:var(--fs-cap);color:var(--muted);margin:8px 0 16px;line-height:1.5}
+.panel h2{font-size:var(--fs-fine);font-weight:600;color:var(--muted);margin:16px 0 4px}
+.panel button{display:flex;width:100%;padding:8px 12px;border-radius:var(--r-sm);font-size:var(--fs-cap);gap:8px;align-items:baseline}
+.panel button:hover{background:var(--parchment)}
+.panel button.on{color:var(--blue);font-weight:600;background:var(--blue-soft)}
+.panel .close{position:absolute;right:16px;top:16px;width:auto;color:var(--blue)}
+.panel .foot{font-size:var(--fs-fine);color:var(--muted);margin-top:16px;line-height:1.5}
 
-/* ---------- screens ---------- */
+/* ---------- 화면 공통 ---------- */
 .screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--canvas)}
 .screen.on{display:flex}
-.status{height:47px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px;font-size:15px;font-weight:600}
-.status .bat{display:flex;gap:6px;align-items:center}
-.status .bat i{display:block;width:24px;height:11px;border:1.5px solid currentColor;border-radius:3px;position:relative}
-.status .bat i::after{content:"";position:absolute;inset:1.5px;right:5px;background:currentColor;border-radius:1px}
-.nav{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px}
-.nav .back{display:flex;align-items:center;gap:2px;font-size:17px;color:var(--blue);min-height:44px;padding:0 6px}
-.nav .title{font-weight:600;font-size:17px}
+.status{height:48px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 8px;font-size:var(--fs-cap);font-weight:600}
+.status .bat{display:block;width:24px;height:12px;border:2px solid currentColor;border-radius:4px}
+.nav{height:44px;flex:none;display:flex;align-items:center;padding:0 12px}
+.back{display:flex;align-items:center;gap:2px;color:var(--blue);min-height:44px;padding:0 4px;border-radius:var(--r-sm)}
+.back:hover{background:var(--blue-soft)}
 .body{flex:1;overflow-y:auto;padding:4px 20px 24px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
 .body::-webkit-scrollbar{display:none}
-.date{font-size:14px;color:var(--muted);font-weight:500}
-.h-hero{font-family:var(--font-d);font-size:34px;font-weight:600;line-height:1.15;letter-spacing:-0.02em}
-.h-lg{font-family:var(--font-d);font-size:26px;font-weight:600;line-height:1.2;letter-spacing:-0.015em}
-.h-md{font-family:var(--font-d);font-size:20px;font-weight:600;line-height:1.25}
-.cap{font-size:14px;line-height:1.4;color:var(--muted-2)}
-.fine{font-size:12px;line-height:1.35;color:var(--muted)}
+.date{font-size:var(--fs-cap);color:var(--muted);font-weight:500}
+.h-hero{font-family:var(--font-d);font-size:var(--fs-hero);font-weight:700;line-height:1.15;letter-spacing:-0.02em}
+.h-lg{font-family:var(--font-d);font-size:var(--fs-lg);font-weight:700;line-height:1.2;letter-spacing:-0.015em}
+.h-md{font-family:var(--font-d);font-size:var(--fs-md);font-weight:600;line-height:1.3}
+.cap{font-size:var(--fs-cap);line-height:1.45;color:var(--muted)}
+.fine{font-size:var(--fs-fine);line-height:1.4;color:var(--muted)}
 .strong{font-weight:600}
-.eyebrow{font-size:12px;font-weight:600;color:var(--muted-2);letter-spacing:.02em}
-
-.card{background:var(--pearl);border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.card.white{background:var(--canvas);border:1px solid var(--hairline);box-shadow:none}
-.card.tile{background:var(--tile);color:#fff}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--pill);background:var(--parchment);font-size:14px;font-weight:600;color:var(--ink)}
-.chip .ic{color:var(--ink-80)}
-.chip.sel{background:var(--tile);color:#fff}
-.chip.sel .ic{color:#fff}
-.seq{font-size:15px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:4px;align-items:center}
-
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:var(--pill);font-size:17px;font-weight:600;transition:transform .1s,opacity .1s}
-.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--tile);color:#fff}
-.btn.secondary{background:var(--canvas);border:1px solid var(--hairline)}
-.link{font-size:15px;color:var(--blue);padding:10px 6px;min-height:44px}
-.links{display:flex;justify-content:center;gap:20px}
-
-.reason{background:var(--canvas);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
-.reason .t{font-size:14px;font-weight:600;color:var(--blue)}
-.reason li{list-style:none;font-size:14px;line-height:1.45;padding-left:14px;position:relative}
-.reason li::before{content:"";position:absolute;left:2px;top:9px;width:4px;height:4px;border-radius:50%;background:var(--muted)}
-
-.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-md);font-size:15px;width:100%;text-align:left}
-.row .l{display:flex;gap:10px;align-items:center;color:var(--ink-80)}
-.row .v{font-weight:600;display:flex;align-items:center;gap:2px}
-.note{border:1.5px dashed #d2d2d7;border-radius:var(--r-md);padding:12px 14px;font-size:14px;color:var(--muted-2);display:flex;gap:8px;align-items:center;width:100%;text-align:left}
-.banner{background:var(--blue-soft);color:#00438a;border-radius:var(--r-md);padding:14px 16px;font-size:15px;font-weight:600;display:flex;gap:10px;align-items:flex-start;line-height:1.4}
-.calm{text-align:center;font-size:13px;color:var(--muted);line-height:1.5;padding:4px 0}
+.eyebrow{font-size:var(--fs-fine);font-weight:600;color:var(--muted)}
 .spacer{flex:1}
+.cols{display:flex;flex-direction:column;gap:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
 
-.cta{flex:none;padding:12px 20px 30px;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px)}
-.tabbar{flex:none;height:83px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hairline);background:rgba(250,250,252,.94);backdrop-filter:blur(20px);padding-bottom:22px}
-.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:500;color:var(--muted)}
-.tabbar button .ic{width:24px;height:24px}
-.tabbar button.on{color:var(--blue)}
+.card{background:var(--pearl);border:1px solid var(--divider);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;gap:12px}
+.card.white{background:var(--canvas);border-color:var(--hairline)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;padding:4px 12px;border-radius:var(--pill);background:var(--parchment);font-size:var(--fs-cap);font-weight:600;color:var(--ink)}
+button.chip{border:1px solid var(--hairline);background:var(--canvas)}
+button.chip:hover{border-color:var(--ink)}
+.chip.sel{background:var(--tile);color:#fff}
+.seq{font-size:var(--fs-cap);color:var(--ink-80)}
 
-/* list */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 20px;border-radius:var(--pill);font-size:var(--fs-body);font-weight:600;transition:transform .1s,background-color .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.secondary{background:var(--canvas);border:1px solid var(--hairline)}
+.btn.secondary:hover{background:var(--parchment);border-color:#c7c7cc}
+.link{font-size:var(--fs-cap);color:var(--blue);padding:12px 8px;min-height:44px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:transparent;border-radius:var(--r-sm)}
+.link:hover{text-decoration-color:currentColor}
+.links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+
+.reason{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-md);padding:12px 16px;display:flex;flex-direction:column;gap:4px}
+.reason .t{font-size:var(--fs-cap);font-weight:600;color:var(--blue)}
+.reason ul{display:flex;flex-direction:column;gap:4px}
+.reason li{list-style:none;font-size:var(--fs-cap);line-height:1.45;padding-left:16px;position:relative}
+.reason li::before{content:"";position:absolute;left:4px;top:8px;width:4px;height:4px;border-radius:50%;background:var(--muted)}
+
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-md);font-size:var(--fs-cap);width:100%;min-height:48px}
+.row .v{font-weight:600;display:flex;align-items:center;gap:4px}
+button.row:hover{background:var(--parchment)}
+.note{border:2px dashed #d2d2d7;border-radius:var(--r-md);padding:12px 16px;font-size:var(--fs-cap);color:var(--muted);display:flex;gap:8px;align-items:center;width:100%}
+button.note{color:var(--ink-80)}
+button.note:hover{border-color:var(--muted)}
+.banner{background:var(--blue-soft);color:var(--blue-ink);border-radius:var(--r-md);padding:12px 16px;font-size:var(--fs-cap);font-weight:600;line-height:1.45}
+.calm{text-align:center;font-size:var(--fs-fine);color:var(--muted);line-height:1.5;padding:4px 0}
+
+.cta{flex:none;padding:12px 20px 32px;display:flex;flex-direction:column;gap:8px;background:var(--canvas);border-top:1px solid var(--divider)}
+.tabbar{flex:none;height:84px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hairline);background:var(--pearl);padding-bottom:24px}
+.tabbar>*{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:var(--fs-fine);font-weight:500;color:var(--muted)}
+.tabbar .ic{width:24px;height:24px}
+.tabbar [aria-current]{color:var(--blue);font-weight:600}
+.tabbar button:hover{color:var(--ink)}
+
+/* 목록 */
 .list{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);overflow:hidden}
-.li{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.li{display:flex;align-items:center;gap:16px;padding:12px 16px;min-height:64px;width:100%}
 .li+.li{border-top:1px solid var(--divider)}
-.li .badge{width:44px;height:44px;border-radius:12px;background:var(--parchment);display:flex;align-items:center;justify-content:center;color:var(--ink-80);flex:none}
-.li .badge.dark{background:var(--tile);color:#fff}
-.li .m{flex:1;min-width:0}
-.li .m b{font-weight:600;font-size:16px;display:block}
-.li .min{font-weight:600;font-size:15px}
-.img{height:150px;border-radius:var(--r-md);background:linear-gradient(135deg,#ececf0,#f7f7f9);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;gap:6px}
+.li .num{width:32px;height:32px;border-radius:50%;background:var(--parchment);display:flex;align-items:center;justify-content:center;font-size:var(--fs-cap);font-weight:600;flex:none}
+.li .num.dark{background:var(--tile);color:#fff}
+.li .m{flex:1;min-width:0;display:flex;flex-direction:column}
+.li .m b{font-weight:600;font-size:var(--fs-body)}
+.li .min{font-weight:600;font-size:var(--fs-cap)}
+.img{height:148px;border-radius:var(--r-md);background:var(--parchment);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:var(--fs-fine)}
 
-/* lock */
-.lock{background:linear-gradient(170deg,#2c3e50 0%,#1c1c1e 70%);color:#fff}
-.lock .clock{font-family:var(--font-d);font-size:84px;font-weight:600;text-align:center;letter-spacing:-0.03em;line-height:1;margin-top:28px}
-.lock .day{text-align:center;font-size:19px;font-weight:500;opacity:.9;margin-top:6px}
-.noti{margin:36px 12px 0;background:rgba(245,245,247,.82);backdrop-filter:blur(30px);color:var(--ink);border-radius:22px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
-.noti .app{display:flex;justify-content:space-between;font-size:13px;color:var(--muted-2)}
-.noti .app span:first-child{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--ink-80)}
-.noti .appic{width:20px;height:20px;border-radius:5px;background:var(--tile);display:flex;align-items:center;justify-content:center;color:#fff}
-.noti .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-.noti .acts button{background:rgba(255,255,255,.9);border-radius:12px;padding:11px 0;font-size:15px;font-weight:600}
-.noti .acts button:first-child{background:var(--tile);color:#fff}
+/* 선택지 (코스·시간) */
+.opt{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:16px;border:1px solid var(--hairline);border-radius:var(--r-md);background:var(--canvas)}
+button.opt:hover{border-color:var(--ink)}
+.opt.sel{border:2px solid var(--ink)}
+.opt .m{display:flex;flex-direction:column}
+.opt .mark{font-size:var(--fs-fine);font-weight:600;color:var(--blue)}
 
-/* workout */
-.prog{height:6px;border-radius:var(--pill);background:var(--chip);overflow:hidden}
+/* 입력 */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:var(--fs-cap);font-weight:600}
+.inwrap{display:flex;align-items:center;gap:8px;border:1px solid #c7c7cc;border-radius:var(--r-md);padding:0 16px;background:var(--canvas)}
+.inwrap:focus-within{border-color:var(--ink)}
+.inwrap input{flex:1;border:0;outline:0;background:none;min-height:52px;font-size:var(--fs-md);font-weight:600;width:100%}
+.inwrap span{color:var(--muted);font-size:var(--fs-cap)}
+.err-msg{font-size:var(--fs-cap);color:#b3261e;min-height:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid3 .inwrap{padding:0 12px}
+.grid3 .inwrap input{font-size:var(--fs-body)}
+
+/* 잠금 화면 */
+.lock{background:#1c1c1e;color:#fff}
+.lock .clock{font-family:var(--font-d);font-size:var(--fs-xl);font-weight:600;text-align:center;letter-spacing:-0.02em;line-height:1;margin-top:32px}
+.lock .day{text-align:center;font-size:var(--fs-body);font-weight:500;color:#d1d1d6;margin-top:8px}
+.noti{margin:40px 12px 0;background:#f2f2f7;color:var(--ink);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:4px}
+.noti .app{display:flex;justify-content:space-between;font-size:var(--fs-fine);color:var(--muted)}
+.noti .app b{color:var(--ink-80)}
+.noti .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.noti .acts .btn{min-height:44px;font-size:var(--fs-cap)}
+.lock .calm{color:#aeaeb2;padding-bottom:40px}
+
+/* 운동 중 */
+.prog{height:8px;border-radius:var(--pill);background:var(--chip);overflow:hidden}
 .prog i{display:block;height:100%;background:var(--tile);border-radius:var(--pill);transition:width .4s}
-.timer{text-align:center;font-family:var(--font-d);font-size:56px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.timer small{font-size:22px;color:var(--muted);font-weight:500;margin-left:6px}
-.now{text-align:center;display:flex;flex-direction:column;gap:2px;align-items:center}
-.att{display:inline-flex;gap:6px;align-items:center;font-size:14px;font-weight:600;background:var(--parchment);padding:7px 12px;border-radius:var(--pill)}
+.timer{text-align:center;font-family:var(--font-d);font-size:var(--fs-xl);font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.timer small{font-size:var(--fs-md);color:var(--muted);font-weight:500;margin-left:8px}
+.att{display:inline-flex;gap:4px;align-items:center;font-size:var(--fs-cap);font-weight:600;background:var(--parchment);padding:4px 12px;border-radius:var(--pill)}
+.nextbox{display:flex;flex-direction:column;gap:4px;width:100%;padding:12px 16px;border:1px solid var(--hairline);border-radius:var(--r-md);background:var(--canvas)}
+.nextbox:hover{background:var(--parchment)}
+.nextbox .top{display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-cap)}
+.nextbox .more{font-size:var(--fs-cap);color:var(--muted)}
 
-/* done */
-.donemark{width:84px;height:84px;border-radius:50%;background:var(--tile);color:#fff;display:flex;align-items:center;justify-content:center;margin:24px auto 4px}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
-.week div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.week span{width:30px;height:30px;border-radius:50%;background:var(--parchment);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+/* 운동 끝 */
+.donemark{width:80px;height:80px;border-radius:50%;background:var(--tile);color:#fff;display:flex;align-items:center;justify-content:center;margin:24px auto 4px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.week div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:var(--fs-fine);color:var(--muted)}
+.week span{width:32px;height:32px;border-radius:50%;background:var(--parchment);display:flex;align-items:center;justify-content:center}
 .week span.ok{background:var(--tile);color:#fff}
 .week span.today{outline:2px solid var(--blue);outline-offset:2px}
+.errbox{background:var(--parchment);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:4px;text-align:left}
 
-/* trend */
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--pearl);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:2px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.stat .v{font-family:var(--font-d);font-size:28px;font-weight:600;letter-spacing:-0.02em}
-.stat .v small{font-size:15px;font-weight:600;margin-left:2px}
+/* 변화 */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--pearl);border:1px solid var(--divider);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--font-d);font-size:var(--fs-lg);font-weight:700;letter-spacing:-0.02em}
 svg.chart{width:100%;height:170px;display:block}
-.outlier{border:1.5px solid var(--blue);border-radius:var(--r-md);padding:14px 16px;display:flex;gap:10px}
-.outlier .ic{color:var(--blue);margin-top:2px}
+.outlier{border:2px solid var(--blue);border-radius:var(--r-md);padding:12px 16px;display:flex;flex-direction:column;gap:2px}
 
-/* sheet & toast */
-.dim{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:20}
+/* 시트 · 알림 */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20}
 .dim.on{display:flex}
-.sheet{background:var(--canvas);width:100%;border-radius:28px 28px 0 0;padding:10px 20px 34px;display:flex;flex-direction:column;gap:12px}
-.sheet .grab{width:36px;height:5px;border-radius:3px;background:#d1d1d6;margin:0 auto 8px}
-.toast{position:absolute;left:20px;right:20px;bottom:100px;background:rgba(29,29,31,.92);color:#fff;border-radius:var(--r-md);padding:13px 16px;font-size:15px;z-index:30;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}
+.screen:has(.dim.on)>.cta{visibility:hidden}
+.sheet{background:var(--canvas);width:100%;border-radius:24px 24px 0 0;padding:12px 20px 32px;display:flex;flex-direction:column;gap:12px;max-height:90%;overflow:auto}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:#d1d1d6;margin:0 auto 8px}
+.toast{position:absolute;left:20px;right:20px;top:64px;background:#1d1d1f;color:#fff;border-radius:var(--r-md);padding:12px 16px;font-size:var(--fs-cap);z-index:30;opacity:0;transform:translateY(-8px);transition:opacity .25s,transform .25s;pointer-events:none}
 .toast.on{opacity:1;transform:none}
 
-/* skeleton */
+/* 뼈대 */
 .sk{background:linear-gradient(90deg,#ececf0 25%,#f5f5f7 50%,#ececf0 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:8px}
 @keyframes sh{to{background-position:-200% 0}}
 
-.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:10px;padding:3px}
-.seg button{padding:7px 0;border-radius:8px;font-size:14px;font-weight:600;color:var(--muted-2)}
-.seg button.on{background:var(--canvas);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.meal{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:var(--r-md);border:1px solid var(--hairline);font-size:15px}
-.meal.empty{border:1.5px dashed #d2d2d7;color:var(--muted)}
-.plan{display:flex;gap:12px;align-items:center;font-size:15px}
-.plan .k{width:36px;height:36px;border-radius:10px;background:var(--parchment);display:flex;align-items:center;justify-content:center;flex:none}
-.err{background:var(--parchment);border-radius:var(--r-md);padding:16px;display:flex;gap:10px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:var(--r-md);padding:4px}
+.seg>*{padding:8px 0;border-radius:var(--r-sm);font-size:var(--fs-cap);font-weight:600;color:var(--ink-80);text-align:center}
+.seg [aria-current]{background:var(--canvas);color:var(--ink)}
+.seg button:hover{color:var(--ink)}
+.meal{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:var(--r-md);border:1px solid var(--hairline);font-size:var(--fs-cap);min-height:48px}
+.meal.empty{border:2px dashed #d2d2d7;color:var(--muted)}
+.plan{display:flex;gap:12px;align-items:baseline;font-size:var(--fs-cap)}
+.plan b{min-width:32px}
 
+/* 휴대폰 크기 */
 @media (max-width:760px){
   .stage{padding:0;display:block}
   .phone{width:100%;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
-  .panel{display:none;position:fixed;inset:0;max-height:none;width:auto;background:var(--parchment);z-index:100;padding:24px 16px}
-  .panel.open{display:block}
-  .menu-btn{display:flex;position:fixed;right:12px;top:52px;z-index:90;background:rgba(29,29,31,.8);color:#fff;border-radius:var(--pill);padding:6px 12px;font-size:13px;font-weight:600;gap:4px;align-items:center}
-  .panel .close{display:block}
+  .review-open{top:8px;bottom:auto;right:64px;padding:4px 8px}
 }
-.panel .close{display:none;position:absolute;right:16px;top:20px;font-size:15px;color:var(--blue);width:auto}
+
+/* 데스크톱: 휴대폰 틀 대신 앱 레이아웃 */
+@media (min-width:1024px){
+  .stage{padding:0;display:block}
+  .phone{width:100%;height:100vh;border-radius:0;box-shadow:none;background:var(--parchment)}
+  .appnav{position:absolute;left:0;top:0;bottom:0;width:var(--nav-w);flex-direction:column;gap:4px;padding:32px 16px;background:var(--pearl);border-right:1px solid var(--hairline);z-index:5}
+  .phone[data-nav="on"] .appnav{display:flex}
+  .appnav .brand{font-family:var(--font-d);font-size:var(--fs-body);font-weight:700;padding:0 12px 24px}
+  .appnav button{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-md);font-size:var(--fs-body);color:var(--ink-80)}
+  .appnav button:hover{background:var(--parchment)}
+  .appnav button[aria-current]{background:var(--canvas);color:var(--ink);font-weight:600;border:1px solid var(--hairline)}
+  .appnav .who{margin-top:auto;padding:12px;font-size:var(--fs-cap);color:var(--muted)}
+  .phone[data-nav="on"] .screen{left:var(--nav-w)}
+  .status,.tabbar{display:none}
+  .screen{background:var(--parchment)}
+  .screen.on{display:grid;grid-template-columns:minmax(0,760px) 320px;justify-content:center;grid-template-rows:auto minmax(0,1fr);column-gap:48px;padding:40px 48px 0;align-content:start}
+  .screen.on:not(:has(>.cta)){grid-template-columns:minmax(0,1040px)}
+  .nav{grid-column:1/-1;padding:0;margin-bottom:8px}
+  .body{grid-column:1;grid-row:2;padding:0 0 40px;max-width:760px;gap:16px}
+  .screen.on:not(:has(>.cta)) .body{max-width:1040px}
+  .cta{grid-column:2;grid-row:2;align-self:start;padding:20px;border:1px solid var(--hairline);border-radius:var(--r-lg);background:var(--canvas)}
+  .cols{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:32px;align-items:start}
+  .card{background:var(--canvas)}
+  .dim{align-items:center}
+  .sheet{max-width:480px;border-radius:var(--r-lg);padding:24px}
+  .sheet .grab{display:none}
+  .toast{left:auto;top:auto;right:32px;bottom:32px;width:360px}
+  .screen.lock{background:#1c1c1e}
+  .screen.lock.on{display:flex;align-items:center;justify-content:center;padding:0}
+  .lock .clock{margin-top:0}
+  .lock .noti{width:420px;margin:32px 0 0}
+  .lock .calm{padding:24px 0 0}
+  .review-open{bottom:16px;right:16px}
+}
+@media (min-width:761px) and (max-width:1023px){ .review-open{bottom:16px} }
 </style>
 </head>
 <body>
@@ -183,155 +251,139 @@ svg.chart{width:100%;height:170px;display:block}
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
-  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17M9 4l3 2 3-2M9 20l3-2 3 2"/></symbol>
-  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
-  <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v4M9.5 2.5h5"/></symbol>
-  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
-  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 102.6-6.1M3.5 4v4.5H8M12 7.5V12l3 2"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20h-5.5v-5.5h-5V20H4z"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></symbol>
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.5 20h17M5 15.5l4.5-4.5 4 3 6-7"/></symbol>
   <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.4-3.8 4.4-5.5 7.5-5.5s6.1 1.7 7.5 5.5"/></symbol>
-  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s6 6.3 6 10.8a6 6 0 01-12 0c0-4.5 6-10.8 6-10.8z"/></symbol>
-  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A7.8 7.8 0 119.5 4.5a6.2 6.2 0 0010 10z"/></symbol>
-  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 01-5 5h-1a5 5 0 01-5-5zM16 10.5h1.5a2.5 2.5 0 010 5H16M9 3.5v2.5M12.5 3.5v2.5"/></symbol>
-  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M6.5 7.5v9M17.5 7.5v9M3.5 10v4M20.5 10v4M6.5 12h11"/></symbol>
-  <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M10 20.5l2.2-6.2 2.8 2.7v3.5M8.5 12.5l2.5-4 3.2 1.2 1.8 3"/></symbol>
-  <symbol id="i-yoga" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="1.8"/><path d="M12 7v6.5M5.5 10l6.5 2 6.5-2M8 20.5l4-7 4 7"/></symbol>
-  <symbol id="i-scale" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8.5 9a5 5 0 017 0l-2.3 2.3M12 10.7l1.2-1.2"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
-  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z"/></symbol>
 </svg>
 
+<button class="review-open" onclick="togglePanel(true)">화면 목록</button>
+<nav class="panel" id="panel" aria-label="화면 바로 가기">
+  <button class="close" onclick="togglePanel(false)">닫기</button>
+  <h1>화면 목록</h1>
+  <p class="sub">과업 3 · 헬스에 혼자 가는 날, 정해진 코스를 받아 바로 시작하기. 검토할 화면으로 바로 이동합니다.</p>
+  <h2>기본 흐름</h2>
+  <button data-jump="notify">1 퇴실 알림</button>
+  <button data-jump="today">2 오늘</button>
+  <button data-jump="detail">3 운동 코스 상세</button>
+  <button data-jump="workout">4 운동 중</button>
+  <button data-jump="done">5 운동 끝</button>
+  <button data-jump="trend">6 좋아지는 흐름</button>
+  <button data-jump="promise">7 운동 약속 정하기</button>
+  <h2>갈림길</h2>
+  <button data-jump="cold">A 추운 날 · 실내 코스</button>
+  <button data-jump="skip">B 오늘은 못 가요 · 10분 스트레칭</button>
+  <button data-jump="deadline">C 마감 2일 전 · 최소 계획</button>
+  <button data-jump="endsheet">D 코스 중간에 끝내기</button>
+  <h2>상태 화면</h2>
+  <button data-jump="records">빈 상태 · 기록 › 식사</button>
+  <button data-jump="error">오류 · 운동 끝 저장 실패</button>
+  <button data-jump="loading">로딩 · 오늘</button>
+  <button data-jump="trend">이상치 · 좋아지는 흐름</button>
+  <h2>이어지는 화면</h2>
+  <button data-jump="courses">코스 목록</button>
+  <button data-jump="weigh">몸무게 재기</button>
+  <button data-jump="meal-add">식사 기록</button>
+  <button data-jump="me">나</button>
+  <p class="foot">가상 프로필 my-general과 4주 더미데이터(10/5~11/1)로 만든 화면입니다. 날씨(-3°C)와 마감일(12/3)은 예시 값입니다.</p>
+</nav>
+
 <div class="stage">
-  <nav class="panel" id="panel" aria-label="화면 바로 가기">
-    <button class="close" onclick="togglePanel(false)">닫기</button>
-    <h1>AX YOUR BODY</h1>
-    <p class="sub">과업 3 · 헬스에 혼자 가야 하는 날, 정해진 시간과 코스를 받아 바로 시작하기.<br>화면을 눌러 직접 써 보거나, 아래에서 바로 이동하세요.</p>
-    <h2>기본 흐름</h2>
-    <button data-jump="notify"><span class="n">1</span>퇴실 알림</button>
-    <button data-jump="today"><span class="n">2</span>오늘</button>
-    <button data-jump="detail"><span class="n">3</span>운동 코스 상세</button>
-    <button data-jump="workout"><span class="n">4</span>운동 중</button>
-    <button data-jump="done"><span class="n">5</span>운동 끝</button>
-    <button data-jump="trend"><span class="n">6</span>좋아지는 흐름</button>
-    <button data-jump="promise"><span class="n">7</span>운동 약속 정하기</button>
-    <h2>갈림길</h2>
-    <button data-jump="cold"><span class="n">A</span>추운 날 → 실내 코스</button>
-    <button data-jump="skip"><span class="n">B</span>오늘은 못 가요 → 가벼운 10분</button>
-    <button data-jump="deadline"><span class="n">C</span>마감 2일 전 → 최소 계획</button>
-    <button data-jump="endsheet"><span class="n">D</span>코스 중간에 끝내기</button>
-    <h2>상태 화면</h2>
-    <button data-jump="records"><span class="n">·</span>빈 상태 · 기록 › 식사</button>
-    <button data-jump="error"><span class="n">·</span>오류 · 운동 끝 저장 실패</button>
-    <button data-jump="loading"><span class="n">·</span>로딩 · 오늘</button>
-    <button data-jump="trend"><span class="n">·</span>이상치 · 좋아지는 흐름</button>
-    <h2>그 밖의 메뉴</h2>
-    <button data-jump="me"><span class="n">·</span>나</button>
-    <p class="foot">가상 프로필 my-general과 4주 더미데이터(10/5~11/1)로 만든 화면입니다. 실제 사람의 정보는 들어 있지 않습니다. 날씨와 마감일은 예시 값입니다.</p>
-  </nav>
+  <div class="phone" id="phone" data-nav="off">
 
-  <button class="menu-btn" onclick="togglePanel(true)">화면 목록</button>
-
-  <div class="phone" id="phone">
+    <nav class="appnav" aria-label="앱 메뉴">
+      <div class="brand">AX YOUR BODY</div>
+      <button data-go="today"><svg class="ic"><use href="#i-home"/></svg>오늘</button>
+      <button data-go="records"><svg class="ic"><use href="#i-note"/></svg>기록</button>
+      <button data-go="trend"><svg class="ic"><use href="#i-chart"/></svg>변화</button>
+      <button data-go="me"><svg class="ic"><use href="#i-person"/></svg>나</button>
+      <div class="who">my-general · 가상 프로필</div>
+    </nav>
 
     <!-- 1. 퇴실 알림 -->
     <section class="screen lock" data-s="notify">
-      <div class="status"><span>17:58</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>17:58</span><span class="bat"></span></div>
       <div class="clock">17:58</div>
       <div class="day">11월 27일 목요일</div>
       <div class="noti">
-        <div class="app"><span><span class="appic"><svg class="ic s"><use href="#i-dumbbell"/></svg></span>AX YOUR BODY</span><span>지금</span></div>
+        <div class="app"><b>AX YOUR BODY</b><span>지금</span></div>
         <div class="strong">오늘 할 운동: 30분 헬스 코스</div>
-        <div class="cap">18:10에 출발하면 19:00 전에 끝나요</div>
+        <div class="cap">18:10에 독서실을 나서면 19:00 전에 끝나요</div>
         <div class="acts">
-          <button onclick="go('loading')">시작하기</button>
-          <button onclick="go('skip')">오늘은 못 가요</button>
+          <button class="btn primary" onclick="go('loading')">시작하기</button>
+          <button class="btn secondary" onclick="go('skip')">오늘은 못 가요</button>
         </div>
       </div>
       <div class="spacer"></div>
-      <p class="calm" style="color:rgba(255,255,255,.6);padding-bottom:40px">독서실 퇴실 시각에 맞춰 오는 알림이에요</p>
+      <p class="calm">독서실 퇴실 시각인 18:00 직전에 오는 알림이에요</p>
     </section>
 
     <!-- 로딩 · 오늘 -->
     <section class="screen" data-s="loading">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
         <div class="date">11월 27일 목요일</div>
         <div class="h-hero">오늘</div>
-        <div class="card" style="gap:14px">
-          <div class="cap strong">오늘 코스를 고르는 중…</div>
-          <div class="sk" style="height:30px;width:70%"></div>
-          <div class="sk" style="height:16px;width:90%"></div>
-          <div class="sk" style="height:16px;width:60%"></div>
-          <div class="sk" style="height:96px;border-radius:14px"></div>
-          <div class="sk" style="height:52px;border-radius:999px"></div>
+        <div class="cols">
+          <div class="card">
+            <div class="cap strong">내 운동 기록과 날씨를 보고 오늘 코스를 정하는 중이에요</div>
+            <div class="sk" style="height:32px;width:70%"></div>
+            <div class="sk" style="height:16px;width:90%"></div>
+            <div class="sk" style="height:96px"></div>
+            <div class="sk" style="height:52px"></div>
+          </div>
+          <div class="stack"><div class="sk" style="height:48px"></div><div class="sk" style="height:48px"></div></div>
         </div>
-        <div class="sk" style="height:52px;border-radius:14px"></div>
-        <div class="sk" style="height:52px;border-radius:14px"></div>
-        <p class="calm">날씨와 내 기록을 살펴보고 있어요</p>
       </div>
       <div class="tabbar" data-tab="today"></div>
     </section>
 
     <!-- 2. 오늘 -->
     <section class="screen" data-s="today">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
         <div class="date">11월 27일 목요일</div>
         <div class="h-hero">오늘</div>
-        <button class="note" onclick="go('cold')"><svg class="ic s"><use href="#i-snow"/></svg>추운 날엔 실내 코스로 바꿀 수 있어요<svg class="ic s" style="margin-left:auto"><use href="#i-chev"/></svg></button>
-        <div class="card">
-          <div class="eyebrow">오늘 할 운동</div>
-          <div class="h-lg">30분 헬스 코스</div>
-          <div class="seq">러닝머신 10분 <svg class="ic s"><use href="#i-arrow"/></svg> 하체 머신 15분 <svg class="ic s"><use href="#i-arrow"/></svg> 스트레칭 5분</div>
-          <div class="chips">
-            <span class="chip"><svg class="ic s"><use href="#i-clock"/></svg>18:20</span>
-            <span class="chip"><svg class="ic s"><use href="#i-pin"/></svg>헬스장</span>
-            <span class="chip"><svg class="ic s"><use href="#i-timer"/></svg>30분</span>
+        <div class="cols">
+          <div class="stack">
+            <button class="note" onclick="go('cold')">추운 날엔 집에서 하는 20분 코스로 바꿀 수 있어요<svg class="ic s" style="margin-left:auto"><use href="#i-chev"/></svg></button>
+            <div class="card" id="todayCard"></div>
           </div>
-          <ul class="reason">
-            <div class="t">이런 이유로 추천드려요</div>
-            <li>최근 운동 시간(30~45분)에 맞췄어요</li>
-            <li>지난번에 상체를 했으니 오늘은 하체예요</li>
-            <li>가볍게 유산소로 몸을 데우면 근력 운동이 더 수월해요</li>
-          </ul>
-          <button class="btn primary" onclick="startWorkout()"><svg class="ic fill"><use href="#i-play"/></svg>운동 시작</button>
-          <div class="links"><button class="link" onclick="go('detail')">코스 자세히 보기</button><button class="link" onclick="go('skip')">오늘은 못 가요</button></div>
+          <div class="stack">
+            <div class="row"><span>이번 주 지킨 운동</span><span class="v" id="weekCount">2 / 3회</span></div>
+            <button class="row" onclick="go('promise')"><span>미룬 운동</span><span class="v"><span id="postponed">1개</span><svg class="ic s"><use href="#i-chev"/></svg></span></button>
+            <p class="calm">미룬 운동은 다음 약속을 정하면 사라져요</p>
+          </div>
         </div>
-        <div class="row"><span class="l"><svg class="ic"><use href="#i-cal"/></svg>이번 주 지킨 운동</span><span class="v" id="weekCount">2 / 3회</span></div>
-        <button class="row" id="postponedRow" onclick="go('promise')"><span class="l"><svg class="ic"><use href="#i-history"/></svg>미룬 운동</span><span class="v"><span id="postponed">1개</span><svg class="ic s"><use href="#i-chev"/></svg></span></button>
       </div>
       <div class="tabbar" data-tab="today"></div>
     </section>
 
     <!-- A. 추운 날 -->
     <section class="screen" data-s="cold">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
         <div class="date">11월 27일 목요일</div>
         <div class="h-hero">오늘</div>
-        <div class="banner"><svg class="ic"><use href="#i-snow"/></svg><span>오늘은 -3°C예요. 집에서 하는 실내 코스로 바꿨어요</span></div>
-        <div class="card">
-          <div class="eyebrow">오늘 할 운동</div>
-          <div class="h-lg">20분 실내 코스</div>
-          <div class="seq">제자리 걷기 5분 <svg class="ic s"><use href="#i-arrow"/></svg> 스쿼트·런지 10분 <svg class="ic s"><use href="#i-arrow"/></svg> 스트레칭 5분</div>
-          <div class="chips">
-            <span class="chip"><svg class="ic s"><use href="#i-home"/></svg>집</span>
-            <span class="chip"><svg class="ic s"><use href="#i-timer"/></svg>20분</span>
-            <span class="chip">도구 없음</span>
+        <div class="cols">
+          <div class="stack">
+            <div class="banner">지금 -3°C예요. 오늘은 집에서 하는 20분 실내 코스로 바꿨어요</div>
+            <div class="card">
+              <div class="eyebrow">오늘 할 운동</div>
+              <div class="h-lg">20분 실내 코스</div>
+              <div class="seq">제자리 걷기 5분, 스쿼트와 런지 10분, 스트레칭 5분</div>
+              <div class="chips"><span class="chip">집</span><span class="chip">20분</span><span class="chip">도구 없음</span></div>
+              <div class="reason"><div class="t">이런 이유로 추천드려요</div><ul>
+                <li>한파 주간(10/19~25)엔 헬스와 걷기를 한 번도 못 갔어요</li>
+                <li>현관을 나서지 않고 거실에서 바로 할 수 있어요</li>
+                <li>지난번에 상체를 했으니 오늘은 하체예요</li></ul></div>
+              <button class="btn primary" onclick="startWorkout('indoor20')"><svg class="ic fill"><use href="#i-play"/></svg>운동 시작</button>
+              <div class="links"><button class="link" onclick="go('today')">헬스장 코스로 되돌리기</button></div>
+            </div>
           </div>
-          <ul class="reason">
-            <div class="t">이런 이유로 추천드려요</div>
-            <li>추운 날엔 밖에 나가기가 특히 어려웠어요</li>
-            <li>집에서 바로 할 수 있는 동작만 골랐어요</li>
-            <li>지난번에 상체를 했으니 오늘은 하체예요</li>
-          </ul>
-          <button class="btn primary" onclick="toast('실내 코스는 다음 버전에서 운동 중 화면과 이어져요')"><svg class="ic fill"><use href="#i-play"/></svg>운동 시작</button>
-          <div class="links"><button class="link" onclick="go('today')">헬스장 코스로 되돌리기</button></div>
+          <div class="stack">
+            <div class="row"><span>이번 주 지킨 운동</span><span class="v">2 / 3회</span></div>
+          </div>
         </div>
       </div>
       <div class="tabbar" data-tab="today"></div>
@@ -339,49 +391,45 @@ svg.chart{width:100%;height:170px;display:block}
 
     <!-- C. 마감 2일 전 -->
     <section class="screen" data-s="deadline">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
         <div class="date">12월 1일 월요일</div>
         <div class="h-hero">오늘</div>
-        <div class="banner"><svg class="ic"><use href="#i-cal"/></svg><span>12/3 지원 마감까지 2일 남았어요. 이번 주는 최소 계획으로 바꿨어요</span></div>
+        <div class="banner">12/3 지원 마감까지 2일 남았어요. 이번 주는 세 가지만 지키는 최소 계획으로 바꿨어요</div>
         <div class="card white">
           <div class="h-md">이번 주 최소 계획</div>
-          <div class="plan"><span class="k"><svg class="ic"><use href="#i-yoga"/></svg></span><span><b>운동</b> · 화 필라테스 수업만 가기</span></div>
-          <div class="plan"><span class="k"><svg class="ic"><use href="#i-moon"/></svg></span><span><b>잠</b> · 6시간 이상 자기</span></div>
-          <div class="plan"><span class="k"><svg class="ic"><use href="#i-cup"/></svg></span><span><b>밤</b> · 야식 대신 따뜻한 차 한 잔</span></div>
-          <ul class="reason" style="background:var(--parchment)">
-            <div class="t">이런 이유로 추천드려요</div>
-            <li>마감 때마다 잠이 4시간까지 줄었어요</li>
-            <li>수업은 마감 주에도 빠지지 않았어요</li>
-          </ul>
+          <div class="plan"><b>운동</b><span>화요일 필라테스 수업 한 번만 가기</span></div>
+          <div class="plan"><b>잠</b><span>자소서를 써도 6시간은 자기</span></div>
+          <div class="plan"><b>밤</b><span>야식이 당기면 따뜻한 차 한 잔으로 바꾸기</span></div>
+          <div class="reason"><div class="t">이런 이유로 추천드려요</div><ul>
+            <li>지난 두 번의 마감 전날 잠이 3.9시간, 4.2시간까지 줄었어요</li>
+            <li>필라테스 수업은 마감 주에도 빠지지 않고 갔어요</li></ul></div>
         </div>
-        <div class="spacer"></div>
-        <button class="btn primary" onclick="go('today');toast('이번 주는 최소 계획으로 갈게요. 마감 잘 마무리하세요')">이대로 할게요</button>
-        <div class="links"><button class="link" onclick="go('today')">원래 계획 보기</button></div>
+      </div>
+      <div class="cta">
+        <button class="btn primary" onclick="go('today');toast('이번 주는 세 가지만 지켜요. 마감 잘 마무리하세요')">이대로 할게요</button>
+        <button class="link" onclick="go('today')">원래 계획 보기</button>
       </div>
       <div class="tabbar" data-tab="today"></div>
     </section>
 
     <!-- B. 오늘은 못 가요 -->
     <section class="screen" data-s="skip">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
-      <div class="nav"><button class="back" onclick="go('today')"><svg class="ic"><use href="#i-back"/></svg>오늘</button><span></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>오늘</button></div>
       <div class="body">
-        <div class="h-lg" style="margin-top:12px">괜찮아요, 오늘은 쉬어 가요</div>
-        <p class="cap" style="font-size:16px">대신 10분만 움직여 볼까요? 하나만 골라 뒀어요.</p>
+        <div class="h-lg">괜찮아요, 오늘 헬스는 쉬어요</div>
+        <p class="cap">대신 잠들기 전 10분만 몸을 풀어 볼까요? 하나만 골라 뒀어요.</p>
         <div class="card">
-          <div class="h-md">자기 전 10분 스트레칭</div>
+          <div class="h-md">10분 스트레칭</div>
           <div class="chips"><span class="chip">침대 옆에서</span><span class="chip">도구 없음</span><span class="chip">동작 4개</span></div>
-          <ul class="reason">
-            <div class="t">이런 이유로 추천드려요</div>
-            <li>컨디션이 낮은 날엔 짧고 가벼운 게 좋아요</li>
-            <li>내일 다시 움직일 힘을 남겨 둬요</li>
-          </ul>
+          <div class="reason"><div class="t">이런 이유로 추천드려요</div><ul>
+            <li>서류 탈락 다음 날(10/23)처럼 기운이 없는 날엔 수업도 쉬었어요</li>
+            <li>10분이면 내일 다시 헬스에 갈 힘이 남아요</li></ul></div>
         </div>
-        <div class="spacer"></div>
       </div>
       <div class="cta">
-        <button class="btn primary" onclick="go('today');toast('10분 스트레칭을 시작해요. 천천히 해요')">10분만 하기</button>
+        <button class="btn primary" onclick="startWorkout('stretch10')">10분만 하기</button>
         <button class="btn secondary" onclick="go('promise')">다음 운동 약속 정하기</button>
         <button class="link" onclick="restToday()">오늘은 그냥 쉴게요</button>
       </div>
@@ -389,53 +437,66 @@ svg.chart{width:100%;height:170px;display:block}
 
     <!-- 3. 운동 코스 상세 -->
     <section class="screen" data-s="detail">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
-      <div class="nav"><button class="back" onclick="go('today')"><svg class="ic"><use href="#i-back"/></svg>오늘</button><span></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>오늘</button></div>
       <div class="body">
-        <div class="h-hero">30분 헬스 코스</div>
-        <div class="chips">
-          <span class="chip"><svg class="ic s"><use href="#i-timer"/></svg>30분</span>
-          <span class="chip"><svg class="ic s"><use href="#i-dumbbell"/></svg>실내 가능</span>
-          <span class="chip">강도 보통</span>
-        </div>
+        <div class="h-hero" id="dName">30분 헬스 코스</div>
+        <div class="chips" id="dChips"></div>
         <div class="list" id="stepList"></div>
-        <div class="img"><svg class="ic"><use href="#i-info"/></svg>동작 예시 이미지 자리</div>
-        <div class="links"><button class="link" onclick="toast('코스 목록 화면은 다음 버전에서 만들어요')">다른 코스 보기</button></div>
+        <div class="img">동작 예시 이미지 자리</div>
+        <div class="links"><button class="link" onclick="openCourses()">다른 코스 보기</button></div>
       </div>
-      <div class="cta"><button class="btn primary" onclick="startWorkout()"><svg class="ic fill"><use href="#i-play"/></svg>운동 시작</button></div>
+      <div class="cta">
+        <button class="btn primary" onclick="startWorkout()"><svg class="ic fill"><use href="#i-play"/></svg>운동 시작</button>
+        <p class="calm" id="dTotal">4개 동작 · 30분 · 중간에 끝내도 기록돼요</p>
+      </div>
+    </section>
+
+    <!-- 코스 목록 (이어지는 화면) -->
+    <section class="screen" data-s="courses">
+      <div class="status"><span>18:01</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>상세</button></div>
+      <div class="body">
+        <div class="h-lg">오늘 할 코스 고르기</div>
+        <p class="cap">고른 코스가 오늘 화면의 운동으로 바뀌어요.</p>
+        <div class="stack" id="courseOpts"></div>
+      </div>
+      <div class="cta">
+        <button class="btn primary" onclick="applyCourse()">이 코스로</button>
+        <p class="calm" id="courseHint"></p>
+      </div>
     </section>
 
     <!-- 4. 운동 중 -->
     <section class="screen" data-s="workout">
-      <div class="status"><span>18:22</span><span class="bat"><i></i></span></div>
-      <div class="body" style="gap:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <div class="status"><span>18:22</span><span class="bat"></span></div>
+      <div class="body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
           <span class="att"><svg class="ic s"><use href="#i-check"/></svg>출석 18:22</span>
-          <span class="cap">동작 <b id="wStepNo" style="color:var(--ink)">1</b> / 4</span>
+          <span class="cap"><span id="wCourse">30분 헬스 코스</span> · 동작 <b id="wStepNo" style="color:var(--ink)">1</b> / <span id="wTotal">4</span></span>
         </div>
         <div class="prog"><i id="wProg" style="width:0%"></i></div>
-        <div class="card" style="align-items:center;text-align:center;padding:24px 18px">
+        <div class="card" style="align-items:center;text-align:center">
           <div class="eyebrow">지금 할 동작</div>
-          <div class="h-lg" id="wName" style="font-size:32px">러닝머신 걷기</div>
+          <div class="h-hero" id="wName">러닝머신 걷기</div>
           <div class="h-md" id="wAmount" style="color:var(--ink-80);font-weight:500">10분</div>
-          <div class="reason" style="text-align:left;width:100%;margin-top:4px">
-            <div class="t" style="color:var(--ink)">자세 한 가지</div>
-            <div class="cap" id="wTip"></div>
-          </div>
+          <p class="cap" id="wTip" style="max-width:420px"></p>
         </div>
         <div class="timer"><span id="wTime">10:00</span><small>남음</small></div>
-        <div class="row" id="wNext"><span class="l">다음: <b style="color:var(--ink)" id="wNextName"></b></span><svg class="ic s"><use href="#i-chev"/></svg></div>
-        <div class="spacer"></div>
+        <button class="nextbox" id="wNext" onclick="toggleNext()" aria-expanded="false">
+          <span class="top"><span>다음: <b id="wNextName"></b></span><svg class="ic s"><use href="#i-chev"/></svg></span>
+          <span class="more" id="wNextMore" hidden></span>
+        </button>
       </div>
       <div class="cta">
-        <button class="btn primary" id="wNextBtn" onclick="nextStep()">다음 동작<svg class="ic"><use href="#i-arrow"/></svg></button>
+        <button class="btn primary" id="wNextBtn" onclick="nextStep()">다음 동작</button>
         <button class="link" onclick="openEndSheet()">여기서 끝내기</button>
       </div>
       <div class="dim" id="endSheet" onclick="if(event.target===this)closeEndSheet()">
-        <div class="sheet">
+        <div class="sheet" role="dialog" aria-label="운동 끝내기">
           <div class="grab"></div>
           <div class="h-md">여기서 끝낼까요?</div>
-          <p class="cap" style="font-size:15px" id="endText">지금까지 18분, 동작 2/4를 했어요. 이것도 운동 기록으로 남아요.</p>
+          <p class="cap" id="endText"></p>
           <button class="btn primary" onclick="finish(true)">끝내고 기록하기</button>
           <button class="btn secondary" onclick="closeEndSheet()">계속하기</button>
         </div>
@@ -444,30 +505,29 @@ svg.chart{width:100%;height:170px;display:block}
 
     <!-- 5. 운동 끝 -->
     <section class="screen" data-s="done">
-      <div class="status"><span>18:52</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:52</span><span class="bat"></span></div>
       <div class="body" style="text-align:center">
         <div class="donemark"><svg class="ic l"><use href="#i-check"/></svg></div>
         <div class="h-lg">오늘 운동 끝!</div>
-        <div class="cap" id="doneSummary">28분 · 30분 헬스 코스 3/4 동작</div>
-        <div class="card" id="doneMsg" style="text-align:left">
-          <div class="strong" id="doneHead">30분이 안 돼도 해낸 거예요.</div>
-          <div class="cap">기록에 남겼어요.</div>
+        <div class="cap" id="doneSummary"></div>
+        <div class="card" id="doneMsg" style="text-align:left;gap:4px">
+          <div class="strong" id="doneHead"></div>
+          <div class="cap">운동 기록에 남겼어요.</div>
         </div>
-        <div class="err" id="doneErr" style="display:none;text-align:left">
-          <svg class="ic" style="color:var(--muted-2);margin-top:2px"><use href="#i-info"/></svg>
-          <div><div class="strong">기록은 이 기기에 남겨 뒀어요</div><div class="cap">연결되면 자동으로 저장돼요. 지금 다시 해 볼 수도 있어요.</div></div>
+        <div class="errbox" id="doneErr" hidden>
+          <div class="strong">저장은 못 했지만, 기록은 이 휴대폰에 남겨 뒀어요</div>
+          <div class="cap">인터넷이 연결되면 자동으로 저장돼요. 지금 다시 해 볼 수도 있어요.</div>
         </div>
         <div class="card white" style="text-align:left">
           <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="strong">이번 주 지킨 운동</span><span class="h-md" id="doneWeek">3회</span></div>
           <div class="week" id="weekDots"></div>
         </div>
-        <div class="spacer"></div>
       </div>
       <div class="cta" id="doneCta">
-        <button class="btn primary" onclick="go('trend')">좋아지는 흐름 보기<svg class="ic"><use href="#i-arrow"/></svg></button>
+        <button class="btn primary" onclick="go('trend')">좋아지는 흐름 보기</button>
         <button class="btn secondary" onclick="go('today')">닫기</button>
       </div>
-      <div class="cta" id="errCta" style="display:none">
+      <div class="cta" id="errCta" hidden>
         <button class="btn primary" onclick="retrySave()">다시 저장하기</button>
         <button class="btn secondary" onclick="go('today')">닫기</button>
       </div>
@@ -475,111 +535,160 @@ svg.chart{width:100%;height:170px;display:block}
 
     <!-- 6. 좋아지는 흐름 -->
     <section class="screen" data-s="trend">
-      <div class="status"><span>18:53</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:53</span><span class="bat"></span></div>
       <div class="body">
-        <div class="h-hero" style="margin-top:8px">변화</div>
-        <div class="chips">
-          <button class="chip sel" data-period="4w">최근 4주</button>
-          <button class="chip" data-period="3m">최근 3개월</button>
-        </div>
-        <div id="trendBody">
-          <div class="stats" style="margin-bottom:12px">
-            <div class="stat"><span class="cap">지킨 운동</span><span class="v">16<small>회</small></span><span class="fine">10/5 ~ 11/1</span></div>
-            <div class="stat"><span class="cap">몸무게 흐름</span><span class="v">-0.4<small>kg</small></span><span class="fine">73.0 → 72.6kg</span></div>
+        <div class="h-hero">변화</div>
+        <div class="seg" id="periodSeg" style="max-width:320px"></div>
+        <div id="trendBody" class="stack">
+          <div class="stats">
+            <div class="stat"><span class="cap">지킨 운동</span><span class="v" id="sCount">16회</span><span class="fine">10/5 ~ 11/1, 4주</span></div>
+            <div class="stat"><span class="cap">몸무게 흐름</span><span class="v" id="sDelta">-0.4kg</span><span class="fine" id="sRange">73.0kg에서 72.6kg으로</span></div>
           </div>
-          <div class="card white" style="gap:6px;margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between"><span class="strong">4주 흐름선</span><span class="fine">점: 잰 날 · 선: 흐름</span></div>
-            <svg class="chart" id="chart" viewBox="0 0 320 170" role="img" aria-label="4주 몸무게 흐름. 73.0kg에서 72.6kg으로 완만하게 내려감. 10월 15일 73.4kg은 튄 값으로 흐리게 표시"></svg>
+          <div class="card white" style="gap:4px">
+            <div style="display:flex;justify-content:space-between"><span class="strong">4주 흐름선</span><span class="fine">점은 잰 날, 선은 흐름</span></div>
+            <svg class="chart" id="chart" viewBox="0 0 320 170" role="img" aria-label="4주 몸무게 흐름"></svg>
           </div>
           <div class="outlier">
-            <svg class="ic"><use href="#i-drop"/></svg>
-            <div><div class="strong" style="font-size:15px">10/15 · 73.4kg</div><div class="cap">어제 늦은 식사 때문일 수 있어요. 흐름에는 작게 반영해요.</div></div>
+            <span class="strong">10/15 · 73.4kg은 흐리게 표시했어요</span>
+            <span class="cap">전날 늦은 식사 때문일 수 있어요. 흐름에는 작게만 반영해요.</span>
           </div>
         </div>
-        <div id="trendEmpty" class="note" style="display:none;flex-direction:column;align-items:flex-start;gap:4px;padding:18px">
-          <span class="strong" style="color:var(--ink)">아직 4주치 기록만 있어요</span>
-          <span>기록이 쌓이면 3개월 흐름도 보여 드릴게요. 비어 있어도 괜찮아요.</span>
+        <div id="trendEmpty" class="note" hidden>
+          <span><b style="color:var(--ink)">아직 4주치 기록만 있어요.</b> 기록이 3개월 쌓이면 이 자리에 긴 흐름을 보여 드릴게요.</span>
         </div>
-        <button class="btn secondary" onclick="toast('몸무게 재기 화면은 다음 버전에서 만들어요')"><svg class="ic"><use href="#i-scale"/></svg>몸무게 재기</button>
-        <button class="btn primary" onclick="go('promise')"><svg class="ic"><use href="#i-cal"/></svg>다음 운동 약속 정하기</button>
+      </div>
+      <div class="cta">
+        <button class="btn primary" onclick="go('promise')">다음 운동 약속 정하기</button>
+        <button class="btn secondary" onclick="openWeigh()">몸무게 재기</button>
       </div>
       <div class="tabbar" data-tab="trend"></div>
     </section>
 
+    <!-- 몸무게 재기 (이어지는 화면) -->
+    <section class="screen" data-s="weigh">
+      <div class="status"><span>18:54</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>변화</button></div>
+      <div class="body">
+        <div class="h-lg">몸무게 재기</div>
+        <p class="cap" id="wLast">지난번 10/29 · 72.6kg</p>
+        <div class="field">
+          <label for="weightIn">오늘 몸무게</label>
+          <div class="inwrap"><input id="weightIn" type="number" inputmode="decimal" step="0.1" min="40" max="150" placeholder="72.6"><span>kg</span></div>
+          <div class="err-msg" id="weightErr"></div>
+        </div>
+        <p class="calm">아침 공복에 재면 하루 사이 출렁임이 줄어요</p>
+      </div>
+      <div class="cta">
+        <button class="btn primary" onclick="saveWeight()">저장</button>
+      </div>
+    </section>
+
     <!-- 7. 운동 약속 정하기 -->
     <section class="screen" data-s="promise">
-      <div class="status"><span>18:54</span><span class="bat"><i></i></span></div>
-      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>뒤로</button><span></span></div>
+      <div class="status"><span>18:54</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>뒤로</button></div>
       <div class="body">
         <div class="h-hero">다음 운동 약속</div>
-        <div class="eyebrow" style="margin-top:6px">날짜</div>
-        <div class="chips" id="dateChips">
-          <button class="chip sel">토 11/29</button><button class="chip">월 12/1</button><button class="chip">화 12/2</button><button class="chip">목 12/4</button>
-        </div>
-        <div class="eyebrow" style="margin-top:6px">시간</div>
-        <button class="row" onclick="toast('시간 바꾸기는 다음 버전에서 만들어요')"><span class="strong">18:20 <span class="cap">(독서실 퇴실 후)</span></span><span class="link" style="padding:0;min-height:0">바꾸기</span></button>
-        <div class="eyebrow" style="margin-top:6px">코스</div>
-        <button class="row" onclick="toast('코스 바꾸기는 다음 버전에서 만들어요')"><span class="strong" id="pCourse">30분 헬스 코스</span><span class="link" style="padding:0;min-height:0">바꾸기</span></button>
-        <div class="note" id="pDeadline" style="display:none"><svg class="ic s"><use href="#i-info"/></svg>12/3 지원 마감 이틀 전이에요. 가벼운 코스를 추천해요.</div>
-        <div class="spacer"></div>
+        <div class="eyebrow">날짜</div>
+        <div class="chips" id="dateChips"></div>
+        <div class="eyebrow">시간</div>
+        <button class="row" onclick="openSheet('timeSheet')"><span class="strong" id="pTime">18:20 · 독서실 퇴실 후</span><span class="v" style="color:var(--blue)">바꾸기</span></button>
+        <div class="eyebrow">코스</div>
+        <button class="row" onclick="openSheet('courseSheet')"><span class="strong" id="pCourse">30분 헬스 코스</span><span class="v" style="color:var(--blue)">바꾸기</span></button>
+        <div class="note" id="pDeadline" hidden>12/3 지원 마감 이틀 전이라 20분 가벼운 코스로 바꿨어요.</div>
       </div>
       <div class="cta">
         <button class="btn primary" onclick="setPromise()">약속 정하기</button>
         <button class="link" onclick="go('today');toast('괜찮아요. 미룬 운동에 남겨 둘게요')">아직 안 정함으로 두기</button>
       </div>
+      <div class="dim" id="timeSheet" onclick="if(event.target===this)closeSheet('timeSheet')">
+        <div class="sheet" role="dialog" aria-label="시간 고르기">
+          <div class="grab"></div>
+          <div class="h-md">몇 시에 갈까요?</div>
+          <div class="stack" id="timeOpts"></div>
+          <button class="btn primary" onclick="applyTime()">이 시간으로</button>
+        </div>
+      </div>
+      <div class="dim" id="courseSheet" onclick="if(event.target===this)closeSheet('courseSheet')">
+        <div class="sheet" role="dialog" aria-label="코스 고르기">
+          <div class="grab"></div>
+          <div class="h-md">어떤 코스로 할까요?</div>
+          <div class="stack" id="pCourseOpts"></div>
+          <button class="btn primary" onclick="applyPromiseCourse()">이 코스로</button>
+        </div>
+      </div>
     </section>
 
-    <!-- 기록 (빈 상태) -->
+    <!-- 기록 -->
     <section class="screen" data-s="records">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
-        <div class="h-hero" style="margin-top:8px">기록</div>
-        <div class="seg"><button data-rec="workout">운동</button><button class="on" data-rec="meal">식사</button></div>
-        <div id="recMeal" style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center"><span class="strong">10월 24일 금요일</span><span class="fine">더미데이터 기준</span></div>
-          <div class="meal empty"><span>아침</span><span>비어 있어요</span></div>
-          <div class="meal"><span class="strong">점심</span><span class="cap">탄 103g · 단 30g · 지 22g</span></div>
-          <div class="meal"><span class="strong">간식</span><span class="cap">탄 37g · 단 3g · 지 13g</span></div>
-          <div class="meal empty"><span>저녁</span><span>비어 있어요</span></div>
-          <div class="card" style="align-items:center;text-align:center;margin-top:4px">
-            <div class="h-md">비어 있어도 괜찮아요</div>
-            <div class="cap">오늘 하나만 남겨요</div>
-            <button class="btn primary" onclick="toast('식사 기록 화면은 다음 버전에서 만들어요')"><svg class="ic"><use href="#i-plus"/></svg>식사 하나 기록하기</button>
+        <div class="h-hero">기록</div>
+        <div class="seg" id="recSeg" style="max-width:320px"></div>
+        <div class="cols" id="recMeal">
+          <div class="stack">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span class="strong">10월 24일 금요일</span><span class="fine">4주 더미데이터 중 하루</span></div>
+            <div class="stack" id="mealRows"></div>
           </div>
+          <div class="card" id="mealCard"></div>
         </div>
-        <div id="recWorkout" style="display:none;flex-direction:column;gap:10px">
+        <div class="stack" id="recWorkout" hidden>
           <div class="list">
-            <div class="li"><span class="badge"><svg class="ic"><use href="#i-walk"/></svg></span><span class="m"><b>걷기 · 동네 산책</b><span class="cap">11/1 · 5,480보</span></span><span class="min">40분</span></div>
-            <div class="li"><span class="badge dark"><svg class="ic"><use href="#i-dumbbell"/></svg></span><span class="m"><b>헬스 · 러닝머신 + 상체</b><span class="cap">10/31 · 출석함</span></span><span class="min">45분</span></div>
-            <div class="li"><span class="badge"><svg class="ic"><use href="#i-yoga"/></svg></span><span class="m"><b>필라테스 · 리포머</b><span class="cap">10/30 · 수업</span></span><span class="min">50분</span></div>
+            <div class="li"><span class="m"><b>걷기 · 동네 산책</b><span class="cap">11/1 · 5,480보</span></span><span class="min">40분</span></div>
+            <div class="li"><span class="m"><b>헬스 · 러닝머신과 상체 머신</b><span class="cap">10/31 · 출석</span></span><span class="min">45분</span></div>
+            <div class="li"><span class="m"><b>필라테스 · 리포머 수업</b><span class="cap">10/30</span></span><span class="min">50분</span></div>
           </div>
-          <p class="calm">기록이 빈 날도 그대로 두어도 괜찮아요</p>
+          <p class="calm">기록이 빈 날이 있어도 그대로 두면 돼요</p>
         </div>
       </div>
       <div class="tabbar" data-tab="records"></div>
     </section>
 
+    <!-- 식사 기록 (이어지는 화면) -->
+    <section class="screen" data-s="meal-add">
+      <div class="status"><span>18:01</span><span class="bat"></span></div>
+      <div class="nav"><button class="back" onclick="back()"><svg class="ic"><use href="#i-back"/></svg>기록</button></div>
+      <div class="body">
+        <div class="h-lg">식사 기록</div>
+        <p class="cap">10월 24일 금요일 · 비어 있는 끼니 하나를 골라 적어요</p>
+        <div class="eyebrow">끼니</div>
+        <div class="chips" id="mealPick"></div>
+        <div class="grid3">
+          <div class="field"><label for="mC">탄수화물</label><div class="inwrap"><input id="mC" type="number" inputmode="numeric" min="0" placeholder="0"><span>g</span></div></div>
+          <div class="field"><label for="mP">단백질</label><div class="inwrap"><input id="mP" type="number" inputmode="numeric" min="0" placeholder="0"><span>g</span></div></div>
+          <div class="field"><label for="mF">지방</label><div class="inwrap"><input id="mF" type="number" inputmode="numeric" min="0" placeholder="0"><span>g</span></div></div>
+        </div>
+        <div class="err-msg" id="mealErr"></div>
+        <p class="calm">대충 적어도 괜찮아요. 하나만 적어도 저장돼요</p>
+      </div>
+      <div class="cta">
+        <button class="btn primary" onclick="saveMeal()">저장</button>
+      </div>
+    </section>
+
     <!-- 나 -->
     <section class="screen" data-s="me">
-      <div class="status"><span>18:00</span><span class="bat"><i></i></span></div>
+      <div class="status"><span>18:00</span><span class="bat"></span></div>
       <div class="body">
-        <div class="h-hero" style="margin-top:8px">나</div>
-        <div class="card white" style="flex-direction:row;align-items:center;gap:14px">
-          <span class="badge" style="width:52px;height:52px;border-radius:50%;background:var(--tile);color:#fff;display:flex;align-items:center;justify-content:center"><svg class="ic"><use href="#i-person"/></svg></span>
-          <div><div class="strong">my-general</div><div class="cap">가상 프로필 · 일반인</div></div>
+        <div class="h-hero">나</div>
+        <div class="cols">
+          <div class="stack">
+            <div class="card white"><div class="strong">my-general</div><div class="cap">가상 프로필 · 일반인 · 실제 이름과 신체 수치는 넣지 않았어요</div></div>
+            <div class="list">
+              <div class="li"><span class="m"><b>목표 몸무게</b><span class="cap">73.0kg에서 시작</span></span><span class="min">68kg</span></div>
+              <div class="li"><span class="m"><b>독서실 끝나는 시각</b><span class="cap">퇴실 알림이 이 시각에 맞춰 와요</span></span><span class="min">18:00</span></div>
+              <div class="li"><span class="m"><b>지원 마감</b><span class="cap">마감 2일 전부터 최소 계획으로 바뀌어요</span></span><span class="min">12/3</span></div>
+            </div>
+          </div>
+          <div class="stack">
+            <button class="row" onclick="go('deadline')"><span>마감 주간 화면 미리 보기</span><svg class="ic s"><use href="#i-chev"/></svg></button>
+          </div>
         </div>
-        <div class="list">
-          <div class="li"><span class="m"><b>목표 몸무게</b><span class="cap">73.0kg에서 시작</span></span><span class="min">68kg</span></div>
-          <div class="li"><span class="m"><b>독서실 끝나는 시각</b><span class="cap">퇴실 알림 기준</span></span><span class="min">18:00</span></div>
-          <div class="li"><span class="m"><b>일정 · 지원 마감</b><span class="cap">마감 2일 전부터 최소 계획</span></span><span class="min">12/3</span></div>
-        </div>
-        <button class="row" onclick="go('deadline')"><span class="l"><svg class="ic"><use href="#i-cal"/></svg>마감 주간 화면 미리 보기</span><svg class="ic s"><use href="#i-chev"/></svg></button>
-        <p class="calm">실제 이름이나 신체 수치는 넣지 않았어요</p>
       </div>
       <div class="tabbar" data-tab="me"></div>
     </section>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="status"></div>
   </div>
 </div>
 
@@ -589,20 +698,56 @@ svg.chart{width:100%;height:170px;display:block}
   const $$ = (s, el=document) => [...el.querySelectorAll(s)];
   const ic = id => `<svg class="ic"><use href="#i-${id}"/></svg>`;
 
-  /* ----- 상태 ----- */
-  const STEPS = [
-    {name:'러닝머신 걷기', amount:'10분 · 경사 2.0', min:10, icon:'walk', tip:'편하게 대화할 수 있는 속도로 걸으며 몸을 데워요.'},
-    {name:'레그프레스', amount:'12회 × 3세트', min:8, icon:'dumbbell', tip:'무릎이 안쪽으로 모이지 않게 발끝과 같은 방향으로 밀어요.'},
-    {name:'레그컬', amount:'12회 × 3세트', min:7, icon:'dumbbell', tip:'내릴 때 천천히 버티며 허벅지 뒤쪽에 힘을 느껴요.'},
-    {name:'스트레칭', amount:'5분', min:5, icon:'yoga', tip:'숨을 길게 내쉬며 다리 앞뒤를 천천히 늘려요.'}
-  ];
-  const S = {cur:'notify', hist:[], step:0, remain:0, elapsed:0, timer:null, week:2, postponed:1, period:'4w', saveError:false};
+  /* ----- 코스 (workout.csv 의 실제 시간과 순서를 바탕으로) ----- */
+  const COURSES = {
+    gym30: {name:'30분 헬스 코스', place:'헬스장', total:30, rec:true,
+      seq:'러닝머신 10분, 하체 머신 15분, 스트레칭 5분',
+      reasons:['최근 헬스 4번이 30~45분이었어요. 끝까지 할 수 있는 길이로 맞췄어요','지난번(10/31)에 상체를 했으니 오늘은 하체예요','늘 러닝머신부터 시작했으니 순서도 그대로 뒀어요'],
+      steps:[{name:'러닝머신 걷기',amount:'10분 · 경사 2.0',min:10,tip:'옆 사람과 말할 수 있을 정도의 속도로 걸어요.'},
+             {name:'레그프레스',amount:'12회 × 3세트',min:8,tip:'무릎이 안쪽으로 모이지 않게, 발끝과 같은 방향으로 밀어요.'},
+             {name:'레그컬',amount:'12회 × 3세트',min:7,tip:'내릴 때 3초 동안 버티며 허벅지 뒤쪽에 힘을 줘요.'},
+             {name:'스트레칭',amount:'5분',min:5,tip:'숨을 길게 내쉬며 허벅지 앞뒤를 차례로 늘려요.'}]},
+    indoor20: {name:'20분 실내 코스', place:'집', total:20,
+      seq:'제자리 걷기 5분, 스쿼트와 런지 10분, 스트레칭 5분',
+      reasons:['밖에 나가기 어려운 날에 집에서 바로 할 수 있어요'],
+      steps:[{name:'제자리 걷기',amount:'5분',min:5,tip:'팔을 크게 흔들며 무릎을 골반 높이까지 올려요.'},
+             {name:'스쿼트',amount:'15회 × 3세트',min:5,tip:'의자에 앉듯 엉덩이를 뒤로 빼요.'},
+             {name:'런지',amount:'좌우 10회 × 2세트',min:5,tip:'앞 무릎이 발끝을 넘지 않게 내려가요.'},
+             {name:'스트레칭',amount:'5분',min:5,tip:'바닥에 앉아 다리 뒤쪽을 천천히 늘려요.'}]},
+    light20: {name:'20분 가벼운 코스', place:'헬스장', total:20,
+      seq:'러닝머신 10분, 스트레칭 10분',
+      reasons:['마감 주에는 잠을 지키는 게 먼저라 짧게 줄였어요'],
+      steps:[{name:'러닝머신 걷기',amount:'10분',min:10,tip:'숨이 차지 않을 정도로만 걸어요.'},
+             {name:'스트레칭',amount:'10분',min:10,tip:'어깨와 허리를 천천히 풀어요.'}]},
+    stretch10: {name:'10분 스트레칭', place:'침대 옆', total:10,
+      seq:'목과 어깨, 허리, 다리 뒤쪽, 숨 고르기',
+      reasons:['기운이 없는 날에도 할 수 있는 길이예요'],
+      steps:[{name:'목과 어깨 풀기',amount:'3분',min:3,tip:'어깨를 귀까지 올렸다가 툭 떨어뜨려요.'},
+             {name:'허리 비틀기 스트레칭',amount:'3분',min:3,tip:'누워서 무릎을 한쪽으로 천천히 넘겨요.'},
+             {name:'다리 뒤쪽 스트레칭',amount:'2분',min:2,tip:'수건을 발바닥에 걸고 다리를 들어 올려요.'},
+             {name:'누워서 숨 고르기',amount:'2분',min:2,tip:'4초 들이쉬고 6초 내쉬어요.'}]}
+  };
+  const COURSE_ORDER = ['gym30','light20','indoor20','stretch10'];
+  const TIMES = [['07:30','독서실 가기 전'],['18:20','독서실 퇴실 후'],['19:30','저녁 먹고 30분 뒤']];
+  const DATES = ['토 11/29','월 12/1','화 12/2','목 12/4'];
 
-  /* ----- 탭바 ----- */
+  const S = {
+    cur:'notify', hist:[], course:'gym30', pick:'gym30', run:'gym30', step:0, remain:0, timer:null,
+    week:2, postponed:1, period:'4w', saveError:false, rec:'meal',
+    pDate:0, pTime:1, pTimePick:1, pCourse:'gym30', pCoursePick:'gym30',
+    meals:{아침:null, 점심:[103,30,22], 간식:[37,3,13], 저녁:null}, mealPick:null,
+    body:[['10/5',73.0],['10/8',72.8],['10/12',72.5],['10/15',73.4,true],['10/19',72.7],['10/22',72.8],['10/26',73.1],['10/29',72.6]]
+  };
+  const NAV_SCREENS = ['today','loading','cold','deadline','trend','records','me'];
+  const TAB_OF = {today:'today',loading:'today',cold:'today',deadline:'today',trend:'trend',records:'records',me:'me'};
+
+  /* ----- 하단 탭 (휴대폰) · 지금 탭은 누를 수 없는 표시로 ----- */
   const TABS = [['today','home','오늘'],['records','note','기록'],['trend','chart','변화'],['me','person','나']];
   $$('.tabbar').forEach(tb => {
     const on = tb.dataset.tab;
-    tb.innerHTML = TABS.map(([k,i,l]) => `<button class="${k===on?'on':''}" data-go="${k}" aria-label="${l}">${ic(i)}<span>${l}</span></button>`).join('');
+    tb.innerHTML = TABS.map(([k,i,l]) => k===on
+      ? `<span aria-current="page">${ic(i)}<span>${l}</span></span>`
+      : `<button data-go="${k}">${ic(i)}<span>${l}</span></button>`).join('');
   });
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go);
@@ -612,142 +757,254 @@ svg.chart{width:100%;height:170px;display:block}
   /* ----- 이동 ----- */
   function go(id, opts={}){
     if (id === S.cur && !opts.force) return;
-    if (!opts.noHist) S.hist.push(S.cur);
+    if (!opts.noHist && S.cur !== id) S.hist.push(S.cur);
     S.cur = id;
     $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.s === id));
     $$('.panel [data-jump]').forEach(b => b.classList.toggle('on', b.dataset.jump === id));
+    $('#phone').dataset.nav = NAV_SCREENS.includes(id) ? 'on' : 'off';
+    const t = TAB_OF[id];
+    $$('.appnav [data-go]').forEach(b => b.toggleAttribute('aria-current', b.dataset.go === t));
     const sc = $(`.screen[data-s="${id}"] .body`); if (sc) sc.scrollTop = 0;
+    $$('.dim.on').forEach(d => d.classList.remove('on'));
     if (id === 'loading') setTimeout(() => { if (S.cur === 'loading') go('today', {noHist:true}); }, 1100);
     if (id !== 'workout') stopTimer();
-    if (id === 'promise') { $('#pDeadline').style.display = 'none'; }
+    render(id);
   }
-  function back(){ const p = S.hist.pop(); if (p) go(p, {noHist:true}); else go('today'); }
+  function back(){ const p = S.hist.pop(); go(p || 'today', {noHist:true, force:true}); }
   function jump(id){
     togglePanel(false);
-    if (id === 'workout') return startWorkout();
-    if (id === 'endsheet') { startWorkout(); S.step = 1; S.elapsed = 4*60; renderStep(); return openEndSheet(); }
-    if (id === 'done') { S.saveError = false; showDone(STEPS.length, 30); return; }
-    if (id === 'error') { S.saveError = true; showDone(3, 28); return; }
+    if (id === 'workout') return startWorkout(S.course);
+    if (id === 'endsheet') { startWorkout(S.course); S.step = 1; renderStep(); S.remain = Math.max(0, S.remain - 240); return openEndSheet(); }
+    if (id === 'done') { S.saveError = false; S.run = 'gym30'; return showDone(COURSES.gym30.steps.length, 30); }
+    if (id === 'error') { S.saveError = true; S.run = 'gym30'; return showDone(3, 28); }
+    if (id === 'courses') return openCourses();
+    if (id === 'weigh') return openWeigh();
+    if (id === 'meal-add') return openMealAdd();
     go(id, {force:true});
   }
   function togglePanel(open){ $('#panel').classList.toggle('open', open); }
 
-  /* ----- 토스트 ----- */
   let tt;
   function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2400); }
 
-  /* ----- 코스 상세 목록 ----- */
-  $('#stepList').innerHTML = STEPS.map((s,i) => `<div class="li"><span class="badge ${i===1?'dark':''}">${ic(s.icon)}</span><span class="m"><b>${i+1}. ${s.name}</b><span class="cap">${s.amount}</span></span><span class="min">${s.min}분</span></div>`).join('');
+  /* ----- 화면별 그리기 ----- */
+  function render(id){
+    if (id === 'today') renderToday();
+    if (id === 'detail') renderDetail();
+    if (id === 'trend') renderTrend();
+    if (id === 'promise') renderPromise();
+    if (id === 'records') renderRecords();
+  }
+  function renderToday(){
+    const c = COURSES[S.course];
+    const own = S.course !== 'gym30';
+    $('#todayCard').innerHTML = `
+      <div class="eyebrow">${own ? '내가 고른 코스' : '오늘 할 운동'}</div>
+      <div class="h-lg">${c.name}</div>
+      <div class="seq">${c.seq}</div>
+      <div class="chips"><span class="chip">18:20</span><span class="chip">${c.place}</span><span class="chip">${c.total}분</span></div>
+      ${own ? `<p class="cap">직접 고른 코스예요. 추천 코스는 코스 목록에서 다시 고를 수 있어요.</p>`
+            : `<div class="reason"><div class="t">이런 이유로 추천드려요</div><ul>${c.reasons.map(r=>`<li>${r}</li>`).join('')}</ul></div>`}
+      <button class="btn primary" onclick="startWorkout()">${ic('play').replace('class="ic"','class="ic fill"')}운동 시작</button>
+      <div class="links"><button class="link" onclick="go('detail')">코스 자세히 보기</button><button class="link" onclick="go('skip')">오늘은 못 가요</button></div>`;
+    $('#weekCount').textContent = `${S.week} / 3회`;
+    $('#postponed').textContent = `${S.postponed}개`;
+  }
+  function renderDetail(){
+    const c = COURSES[S.course];
+    $('#dName').textContent = c.name;
+    $('#dChips').innerHTML = `<span class="chip">${c.total}분</span><span class="chip">${c.place}</span><span class="chip">${c.rec ? '강도 보통' : '강도 낮음'}</span>`;
+    $('#stepList').innerHTML = c.steps.map((s,i) => `<div class="li"><span class="num ${i===1?'dark':''}">${i+1}</span><span class="m"><b>${s.name}</b><span class="cap">${s.amount}</span></span><span class="min">${s.min}분</span></div>`).join('');
+    $('#dTotal').textContent = `${c.steps.length}개 동작 · ${c.total}분 · 중간에 끝내도 기록돼요`;
+  }
+
+  /* ----- 코스 목록 ----- */
+  function courseOpt(key, sel, fn){
+    const c = COURSES[key];
+    const inner = `<span class="m"><b>${c.name}</b><span class="cap">${c.place} · ${c.seq}</span></span>${key===S.course?'<span class="mark">지금 오늘 코스</span>':''}`;
+    return sel ? `<div class="opt sel" aria-current="true">${inner}</div>` : `<button class="opt" onclick="${fn}('${key}')">${inner}</button>`;
+  }
+  function openCourses(){ S.pick = S.course; go('courses', {force:true}); renderCourses(); }
+  function renderCourses(){
+    $('#courseOpts').innerHTML = COURSE_ORDER.map(k => courseOpt(k, k===S.pick, 'pickCourse')).join('');
+    $('#courseHint').textContent = `${COURSES[S.pick].name}을 골랐어요`;
+  }
+  function pickCourse(k){ S.pick = k; renderCourses(); }
+  function applyCourse(){ S.course = S.pick; S.pCourse = S.pick; go('today', {force:true}); toast(`오늘 운동을 ${COURSES[S.course].name}로 바꿨어요`); }
 
   /* ----- 운동 중 ----- */
   const fmt = sec => `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
-  function startWorkout(){ S.step = 0; S.elapsed = 0; renderStep(); go('workout'); startTimer(); }
+  function startWorkout(key){ S.run = key || S.course; S.step = 0; go('workout', {force:true}); renderStep(); startTimer(); }
+  function steps(){ return COURSES[S.run].steps; }
   function renderStep(){
-    const s = STEPS[S.step];
+    const st = steps(), s = st[S.step];
     S.remain = s.min*60;
+    $('#wCourse').textContent = COURSES[S.run].name;
     $('#wStepNo').textContent = S.step+1;
+    $('#wTotal').textContent = st.length;
     $('#wName').textContent = s.name;
     $('#wAmount').textContent = s.amount;
     $('#wTip').textContent = s.tip;
     $('#wTime').textContent = fmt(S.remain);
-    const nx = STEPS[S.step+1];
-    $('#wNext').style.display = nx ? '' : 'none';
-    if (nx) $('#wNextName').textContent = `${nx.name} · ${nx.min}분`;
-    $('#wNextBtn').innerHTML = nx ? `다음 동작${ic('arrow')}` : `운동 끝내기${ic('check')}`;
+    const nx = st[S.step+1];
+    $('#wNext').hidden = !nx;
+    $('#wNext').setAttribute('aria-expanded','false');
+    $('#wNextMore').hidden = true;
+    if (nx){ $('#wNextName').textContent = `${nx.name} · ${nx.min}분`; $('#wNextMore').textContent = `${nx.amount} · ${nx.tip}`; }
+    $('#wNextBtn').textContent = nx ? '다음 동작' : '운동 끝내기';
     updateProg();
   }
-  function updateProg(){ const s = STEPS[S.step]; const frac = 1 - S.remain/(s.min*60); $('#wProg').style.width = ((S.step+frac)/STEPS.length*100).toFixed(1)+'%'; }
-  function startTimer(){ stopTimer(); S.timer = setInterval(() => { if (S.remain > 0){ S.remain--; S.elapsed++; $('#wTime').textContent = fmt(S.remain); updateProg(); } }, 1000); }
+  function toggleNext(){ const m = $('#wNextMore'); m.hidden = !m.hidden; $('#wNext').setAttribute('aria-expanded', String(!m.hidden)); }
+  function updateProg(){ const st = steps(), s = st[S.step]; const frac = 1 - S.remain/(s.min*60); $('#wProg').style.width = ((S.step+frac)/st.length*100).toFixed(1)+'%'; }
+  function startTimer(){ stopTimer(); S.timer = setInterval(() => { if (S.remain > 0){ S.remain--; $('#wTime').textContent = fmt(S.remain); updateProg(); } }, 1000); }
   function stopTimer(){ clearInterval(S.timer); S.timer = null; }
-  function nextStep(){ if (S.step < STEPS.length-1){ S.step++; renderStep(); } else finish(false); }
-  function doneMinutes(){ return STEPS.slice(0, S.step).reduce((a,s)=>a+s.min,0) + Math.floor((STEPS[S.step].min*60 - S.remain)/60); }
+  function nextStep(){ if (S.step < steps().length-1){ S.step++; renderStep(); } else finish(false); }
+  function doneMinutes(){ const st = steps(); return st.slice(0, S.step).reduce((a,s)=>a+s.min,0) + Math.floor((st[S.step].min*60 - S.remain)/60); }
   function openEndSheet(){
     const m = Math.max(1, doneMinutes());
-    $('#endText').textContent = `지금까지 ${m}분, 동작 ${S.step}/4를 했어요. 이것도 운동 기록으로 남아요.`;
+    $('#endText').textContent = `지금까지 ${m}분, 동작 ${S.step}/${steps().length}를 했어요. 여기까지도 운동 기록으로 남아요.`;
     $('#endSheet').classList.add('on');
   }
   function closeEndSheet(){ $('#endSheet').classList.remove('on'); }
-  function finish(early){
-    closeEndSheet(); stopTimer();
-    if (early) showDone(S.step, Math.max(1, doneMinutes()));
-    else showDone(STEPS.length, 30);
-  }
+  function finish(early){ closeEndSheet(); stopTimer(); const n = steps().length; if (early) showDone(S.step, Math.max(1, doneMinutes())); else showDone(n, COURSES[S.run].total); }
 
   /* ----- 운동 끝 ----- */
   function showDone(stepsDone, minutes){
+    const c = COURSES[S.run];
     S.week = 3;
-    $('#weekCount').textContent = '3 / 3회';
-    $('#doneSummary').textContent = `${minutes}분 · 30분 헬스 코스 ${stepsDone}/4 동작`;
-    const full = minutes >= 30;
-    $('#doneHead').textContent = full ? '계획한 만큼 해냈어요.' : '30분이 안 돼도 해낸 거예요.';
-    $('#doneWeek').textContent = '3회';
-    const err = S.saveError;
-    $('#doneMsg').style.display = err ? 'none' : '';
-    $('#doneErr').style.display = err ? 'flex' : 'none';
-    $('#doneCta').style.display = err ? 'none' : '';
-    $('#errCta').style.display = err ? '' : 'none';
     go('done', {force:true});
+    $('#doneSummary').textContent = `${minutes}분 · ${c.name} · 동작 ${stepsDone}/${c.steps.length}`;
+    $('#doneHead').textContent = stepsDone >= c.steps.length ? '계획한 동작을 다 해냈어요.' : `${c.total}분을 다 채우지 않아도 해낸 거예요.`;
+    $('#doneWeek').textContent = `${S.week}회`;
+    const err = S.saveError;
+    $('#doneMsg').hidden = err; $('#doneErr').hidden = !err;
+    $('#doneCta').hidden = err; $('#errCta').hidden = !err;
   }
-  function retrySave(){ S.saveError = false; $('#doneMsg').style.display=''; $('#doneErr').style.display='none'; $('#doneCta').style.display=''; $('#errCta').style.display='none'; toast('기록을 저장했어요'); }
-  const DAYS = [['월',1],['화',1],['수',0],['목',2],['금',0],['토',0],['일',0]]; /* 1: 지킴, 2: 오늘 */
+  function retrySave(){ S.saveError = false; $('#doneMsg').hidden = false; $('#doneErr').hidden = true; $('#doneCta').hidden = false; $('#errCta').hidden = true; toast('기록을 저장했어요'); }
+  const DAYS = [['월',1],['화',1],['수',0],['목',2],['금',0],['토',0],['일',0]];
   $('#weekDots').innerHTML = DAYS.map(([d,v]) => `<div><span class="${v?'ok':''} ${v===2?'today':''}">${v?ic('check').replace('class="ic"','class="ic s"'):''}</span>${v===2?'오늘':d}</div>`).join('');
 
-  /* ----- 좋아지는 흐름 차트 (body.csv) ----- */
-  const BODY = [['10/5',73.0],['10/8',72.8],['10/12',72.5],['10/15',73.4,true],['10/19',72.7],['10/22',72.8],['10/26',73.1],['10/29',72.6]];
-  (function drawChart(){
-    const W=320,H=170,pl=34,pr=10,pt=14,pb=26, min=72.2, max=73.6;
-    const x = i => pl + i*(W-pl-pr)/(BODY.length-1);
+  /* ----- 좋아지는 흐름 (body.csv) ----- */
+  function renderTrend(){
+    $('#periodSeg').innerHTML = [['4w','최근 4주'],['3m','최근 3개월']].map(([k,l]) => k===S.period
+      ? `<span aria-current="true">${l}</span>` : `<button onclick="setPeriod('${k}')">${l}</button>`).join('');
+    const empty = S.period === '3m';
+    $('#trendBody').hidden = empty; $('#trendEmpty').hidden = !empty;
+    const B = S.body, first = B[0][1], last = B[B.length-1][1];
+    const d = (last - first);
+    $('#sDelta').textContent = `${d>0?'+':''}${d.toFixed(1)}kg`;
+    $('#sRange').textContent = `${first.toFixed(1)}kg에서 ${last.toFixed(1)}kg으로`;
+    drawChart();
+  }
+  function setPeriod(k){ S.period = k; renderTrend(); }
+  function drawChart(){
+    const B = S.body, W=320,H=170,pl=32,pr=8,pt=16,pb=24;
+    const vals = B.map(b=>b[1]); const min = Math.min(72.2, ...vals) , max = Math.max(73.6, ...vals);
+    const x = i => pl + i*(W-pl-pr)/(B.length-1);
     const y = v => pt + (max-v)/(max-min)*(H-pt-pb);
-    // 흐름: 이웃 평균, 튄 값은 가중치 0.25
-    const w = BODY.map(b => b[2]?0.25:1);
-    const trend = BODY.map((b,i) => { let s=0,n=0; for (let k=i-1;k<=i+1;k++){ if (BODY[k]){ const ww = k===i? w[k]*2 : w[k]; s+=BODY[k][1]*ww; n+=ww; } } return s/n; });
+    const w = B.map(b => b[2]?0.25:1);
+    const trend = B.map((b,i) => { let s=0,n=0; for (let k=i-1;k<=i+1;k++){ if (B[k]){ const ww = k===i? w[k]*2 : w[k]; s+=B[k][1]*ww; n+=ww; } } return s/n; });
     let g = '';
-    [72.5,73.0,73.5].forEach(v => { g += `<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#f0f0f0"/><text x="${pl-6}" y="${y(v)+4}" font-size="10" fill="#86868b" text-anchor="end">${v.toFixed(1)}</text>`; });
-    const path = trend.map((v,i) => `${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
-    g += `<path d="${path}" fill="none" stroke="#1d1d1f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-    BODY.forEach((b,i) => {
+    [72.5,73.0,73.5].forEach(v => { g += `<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#f0f0f0"/><text x="${pl-4}" y="${y(v)+4}" fill="#6e6e73" text-anchor="end" style="font-size:var(--fs-fine)">${v.toFixed(1)}</text>`; });
+    g += `<path d="${trend.map((v,i) => `${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#1d1d1f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    B.forEach((b,i) => {
       if (b[2]) g += `<circle cx="${x(i)}" cy="${y(b[1])}" r="9" fill="none" stroke="#0066cc" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="${x(i)}" cy="${y(b[1])}" r="4" fill="#c7c7cc"/>`;
       else g += `<circle cx="${x(i)}" cy="${y(b[1])}" r="3.5" fill="#fff" stroke="#1d1d1f" stroke-width="1.5"/>`;
-      if (i%2===0 || b[2]) g += `<text x="${x(i)}" y="${H-8}" font-size="10" fill="${b[2]?'#0066cc':'#86868b'}" text-anchor="middle">${b[0]}</text>`;
+      if (i%2===0 || b[2] || i===B.length-1) g += `<text x="${x(i)}" y="${H-8}" fill="${b[2]?'#0066cc':'#6e6e73'}" text-anchor="middle" style="font-size:var(--fs-fine)">${b[0]}</text>`;
     });
     $('#chart').innerHTML = g;
-  })();
-  $$('[data-period]').forEach(b => b.addEventListener('click', () => {
-    $$('[data-period]').forEach(x => x.classList.toggle('sel', x===b));
-    const empty = b.dataset.period === '3m';
-    $('#trendBody').style.display = empty ? 'none' : '';
-    $('#trendEmpty').style.display = empty ? 'flex' : 'none';
-  }));
+  }
+
+  /* ----- 몸무게 재기 ----- */
+  function openWeigh(){ const B = S.body, l = B[B.length-1]; $('#wLast').textContent = `지난번 ${l[0]} · ${l[1].toFixed(1)}kg`; $('#weightIn').value = ''; $('#weightErr').textContent = ''; go('weigh', {force:true}); }
+  function saveWeight(){
+    const v = parseFloat($('#weightIn').value);
+    if (!(v >= 40 && v <= 150)) { $('#weightErr').textContent = '40~150 사이 숫자로 적어 주세요. 예: 72.6'; return; }
+    const B = S.body; if (B[B.length-1][0] === '11/27') B.pop();
+    B.push(['11/27', Math.round(v*10)/10]);
+    S.period = '4w';
+    go('trend', {force:true});
+    toast(`오늘 몸무게 ${v.toFixed(1)}kg을 흐름에 넣었어요`);
+  }
 
   /* ----- 약속 ----- */
-  $$('#dateChips .chip').forEach(c => c.addEventListener('click', () => {
-    $$('#dateChips .chip').forEach(x => x.classList.toggle('sel', x===c));
-    const near = /12\/(1|2)/.test(c.textContent);
-    $('#pDeadline').style.display = near ? 'flex' : 'none';
-    $('#pCourse').textContent = near ? '20분 가벼운 코스' : '30분 헬스 코스';
-  }));
+  function renderPromise(){
+    $('#dateChips').innerHTML = DATES.map((d,i) => i===S.pDate ? `<span class="chip sel" aria-current="true">${d}</span>` : `<button class="chip" onclick="pickDate(${i})">${d}</button>`).join('');
+    const [t,l] = TIMES[S.pTime];
+    $('#pTime').textContent = `${t} · ${l}`;
+    $('#pCourse').textContent = COURSES[S.pCourse].name;
+    $('#pDeadline').hidden = !(S.pDate===1 || S.pDate===2);
+  }
+  function pickDate(i){ S.pDate = i; if (i===1 || i===2) S.pCourse = 'light20'; renderPromise(); }
+  function openSheet(id){
+    if (id === 'timeSheet'){ S.pTimePick = S.pTime; renderTimeOpts(); }
+    if (id === 'courseSheet'){ S.pCoursePick = S.pCourse; renderPCourseOpts(); }
+    $('#'+id).classList.add('on');
+  }
+  function closeSheet(id){ $('#'+id).classList.remove('on'); }
+  function renderTimeOpts(){
+    $('#timeOpts').innerHTML = TIMES.map(([t,l],i) => {
+      const inner = `<span class="m"><b>${t}</b><span class="cap">${l}</span></span>`;
+      return i===S.pTimePick ? `<div class="opt sel" aria-current="true">${inner}</div>` : `<button class="opt" onclick="pickTime(${i})">${inner}</button>`;
+    }).join('');
+  }
+  function pickTime(i){ S.pTimePick = i; renderTimeOpts(); }
+  function applyTime(){ S.pTime = S.pTimePick; closeSheet('timeSheet'); renderPromise(); }
+  function renderPCourseOpts(){ $('#pCourseOpts').innerHTML = COURSE_ORDER.map(k => courseOpt(k, k===S.pCoursePick, 'pickPCourse')).join(''); }
+  function pickPCourse(k){ S.pCoursePick = k; renderPCourseOpts(); }
+  function applyPromiseCourse(){ S.pCourse = S.pCoursePick; closeSheet('courseSheet'); renderPromise(); }
   function setPromise(){
-    const d = $('#dateChips .chip.sel').textContent;
-    go('today'); toast(`${d} 18:20, ${$('#pCourse').textContent} 약속을 정했어요`);
+    const d = DATES[S.pDate], [t] = TIMES[S.pTime];
+    S.postponed = Math.max(0, S.postponed - 1);
+    go('today', {force:true});
+    toast(`${d} ${t}, ${COURSES[S.pCourse].name} 약속을 정했어요`);
   }
-  function restToday(){
-    S.postponed = 2; $('#postponed').textContent = '2개';
-    go('today'); toast('괜찮아요. 미룬 운동에 남겨 둘게요');
+  function restToday(){ S.postponed += 1; go('today', {force:true}); toast('괜찮아요. 미룬 운동에 남겨 둘게요'); }
+
+  /* ----- 기록 ----- */
+  function renderRecords(){
+    $('#recSeg').innerHTML = [['workout','운동'],['meal','식사']].map(([k,l]) => k===S.rec
+      ? `<span aria-current="true">${l}</span>` : `<button onclick="setRec('${k}')">${l}</button>`).join('');
+    $('#recMeal').hidden = S.rec !== 'meal'; $('#recWorkout').hidden = S.rec !== 'workout';
+    $('#mealRows').innerHTML = Object.entries(S.meals).map(([k,v]) => v
+      ? `<div class="meal"><span class="strong">${k}</span><span class="cap">탄 ${v[0]}g · 단 ${v[1]}g · 지 ${v[2]}g</span></div>`
+      : `<div class="meal empty"><span>${k}</span><span>비어 있어요</span></div>`).join('');
+    const empties = Object.keys(S.meals).filter(k => !S.meals[k]);
+    $('#mealCard').innerHTML = empties.length
+      ? `<div class="h-md">비어 있어도 괜찮아요</div><div class="cap">${empties.join('과 ')}이 비어 있어요. 기억나는 하나만 남겨요.</div><button class="btn primary" onclick="openMealAdd()">식사 하나 기록하기</button>`
+      : `<div class="h-md">이날 끼니를 다 적었어요</div><div class="cap">합계는 변화 화면에서 흐름으로 볼 수 있어요.</div>`;
+  }
+  function setRec(k){ S.rec = k; renderRecords(); }
+  function openMealAdd(){
+    const empties = Object.keys(S.meals).filter(k => !S.meals[k]);
+    S.mealPick = empties[0] || '간식';
+    ['#mC','#mP','#mF'].forEach(s => $(s).value = '');
+    $('#mealErr').textContent = '';
+    go('meal-add', {force:true}); renderMealPick();
+  }
+  function renderMealPick(){
+    $('#mealPick').innerHTML = Object.keys(S.meals).map(k => k===S.mealPick
+      ? `<span class="chip sel" aria-current="true">${k}</span>` : `<button class="chip" onclick="pickMeal('${k}')">${k}${S.meals[k]?' (덮어쓰기)':''}</button>`).join('');
+  }
+  function pickMeal(k){ S.mealPick = k; renderMealPick(); }
+  function saveMeal(){
+    const v = ['#mC','#mP','#mF'].map(s => parseInt($(s).value, 10));
+    if (v.every(n => isNaN(n))) { $('#mealErr').textContent = '탄수화물, 단백질, 지방 중 하나는 적어 주세요'; return; }
+    S.meals[S.mealPick] = v.map(n => isNaN(n) ? 0 : n);
+    S.rec = 'meal';
+    go('records', {force:true});
+    toast(`${S.mealPick} 기록을 남겼어요`);
   }
 
-  /* ----- 기록 탭 ----- */
-  $$('[data-rec]').forEach(b => b.addEventListener('click', () => {
-    $$('[data-rec]').forEach(x => x.classList.toggle('on', x===b));
-    const meal = b.dataset.rec === 'meal';
-    $('#recMeal').style.display = meal ? 'flex' : 'none';
-    $('#recWorkout').style.display = meal ? 'none' : 'flex';
-  }));
+  window.SCREENS = ['notify','loading','today','cold','deadline','skip','detail','courses','workout','endsheet','done','error','trend','weigh','promise','records','meal-add','me'];
 
-  /* ----- 데스크톱에서 화면 높이에 맞추기 ----- */
-  function fit(){ const p = $('#phone'); p.style.zoom = innerWidth > 760 ? Math.min(1, (innerHeight - 48) / 864) : 1; }
+  /* 761~1023px: 휴대폰 틀을 창 높이에 맞추기 */
+  function fit(){ const p = $('#phone'); p.style.zoom = (innerWidth > 760 && innerWidth < 1024) ? Math.min(1, (innerHeight - 64) / 868) : 1; }
   addEventListener('resize', fit); fit();
 
-  Object.assign(window, {go, back, toast, togglePanel, startWorkout, nextStep, openEndSheet, closeEndSheet, finish, retrySave, setPromise, restToday});
+  Object.assign(window, {go, back, jump, toast, togglePanel, startWorkout, nextStep, toggleNext, openEndSheet, closeEndSheet, finish, retrySave,
+    setPromise, restToday, openCourses, pickCourse, applyCourse, setPeriod, openWeigh, saveWeight, pickDate, openSheet, closeSheet,
+    pickTime, applyTime, pickPCourse, applyPromiseCourse, setRec, openMealAdd, pickMeal, saveMeal});
   go('notify', {noHist:true, force:true});
 })();
 </script>

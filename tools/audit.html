@@ -82,8 +82,10 @@
     parts.push(on ? on.dataset.s || on.id : '');
     return parts.join('|');
   }
+  // 바깥 컨테이너(시트 배경 등)가 아니라 가장 안쪽 클릭 대상을 고른다
+  const deepest = list => list.filter(e => !list.some(o => o !== e && e.contains(o)));
   function clickText(label, opts = {}) {
-    const els = [...doc.querySelectorAll(CLK)].filter(vis).filter(e => opts.exact ? txt(e) === label : txt(e).includes(label));
+    const els = deepest([...doc.querySelectorAll(CLK)].filter(vis).filter(e => opts.exact ? txt(e) === label : txt(e).includes(label)));
     const el = els[opts.index || 0];
     if (el) el.click();
     return el;
@@ -233,7 +235,7 @@
     show('detail'); await sleep(20);
     if (!clickText('다른 코스 보기')) return 'no_button';
     await sleep(30);
-    const cand = clickablesIn(region()).filter(e => txt(e).includes('코스') && !txt(e).includes('30분 헬스 코스') && !txt(e).includes('다른 코스'));
+    const cand = deepest(clickablesIn(region()).filter(e => txt(e).includes('코스') && !txt(e).includes('30분 헬스 코스') && !txt(e).includes('다른 코스')));
     if (!cand.length) return 'no_course_option';
     cand[0].click(); await sleep(30);
     clickText('이 코스로'); await sleep(30);
@@ -247,7 +249,7 @@
     show('promise'); await sleep(20);
     if (!clickText('바꾸기', { index: 0 })) return 'no_button';
     await sleep(30);
-    const opt = clickablesIn(region()).find(e => /\b\d{1,2}:\d{2}\b/.test(txt(e)) && !txt(e).includes('18:20'));
+    const opt = deepest(clickablesIn(region()).filter(e => /\b\d{1,2}:\d{2}\b/.test(txt(e)) && !txt(e).includes('18:20')))[0];
     if (!opt) return 'no_time_option';
     const t = txt(opt).match(/\d{1,2}:\d{2}/)[0];
     opt.click(); await sleep(30);
@@ -265,7 +267,7 @@
     if (btns.length < 2) return 'no_button';
     const before = activeText();
     btns[1].click(); await sleep(30);
-    const opt = clickablesIn(region()).find(e => txt(e).includes('코스') && !before.includes(txt(e)) && !txt(e).includes('바꾸기'));
+    const opt = deepest(clickablesIn(region()).filter(e => txt(e).includes('코스') && !before.includes(txt(e)) && !txt(e).includes('바꾸기')))[0];
     if (!opt) return 'no_course_option';
     const name = (txt(opt).match(/[\d]+분 [^·|]*코스/) || [txt(opt)])[0].trim();
     opt.click(); await sleep(30);
