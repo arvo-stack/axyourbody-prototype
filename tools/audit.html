@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>prototype audit</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden}
+  iframe{position:absolute;left:0;top:0;border:0}
+  pre{position:absolute;left:0;top:0;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<!--
+  동작 감사 (docs/goals/prototype-final-deslop-actions-desktop.md 6-2, 6-3).
+  ../prototype-final.html 을 ?w=&h= 크기의 iframe 으로 열고, 앱이 노출하는
+  window.jump(id) · window.go(id) · window.SCREENS 로 화면을 차례로 띄워 검사한다.
+  결과: <pre id="audit"> 안에 감사 줄과 최종 결과 줄. 기준값을 느슨하게 바꾸지 않는다.
+-->
+<pre id="audit"></pre>
+<script>
+(async function () {
+  const P = new URLSearchParams(location.search);
+  const W = +P.get('w') || 1440, H = +P.get('h') || 900;
+  const DESK = W >= 1024;
+  const TAG = ['AUDIT', '_'].join('');
+  const out = [];
+  let fails = 0;
+  const pre = document.getElementById('audit');
+  const line = (item, scr, ok, detail = '') => {
+    if (!ok) fails++;
+    out.push(`${TAG}LINE:${item} ${scr} ${ok ? 'PASS' : 'FAIL'} ${detail}`.trim());
+    pre.textContent = out.join('\n');
+  };
+  const finish = () => { out.push(fails ? `${TAG}RESULT:FAIL ${fails}` : TAG + 'RESULT:ALL_PASS'); pre.textContent = out.join('\n'); };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  const fr = document.createElement('iframe');
+  fr.width = W; fr.height = H; fr.style.width = W + 'px'; fr.style.height = H + 'px';
+  fr.src = '../prototype-final.html';
+  document.body.appendChild(fr);
+  await new Promise(r => fr.addEventListener('load', r, { once: true }));
+  await sleep(50);
+  const win = fr.contentWindow, doc = fr.contentDocument;
+
+  /* ---------- 계약 ---------- */
+  const okContract = typeof win.jump === 'function' && typeof win.go === 'function' && Array.isArray(win.SCREENS);
+  const primaryToken = okContract ? win.getComputedStyle(doc.documentElement).getPropertyValue('--primary').trim() : '';
+  line('CONTRACT', 'app', okContract && !!primaryToken, `jump=${typeof win.jump} go=${typeof win.go} SCREENS=${Array.isArray(win.SCREENS)} --primary=${primaryToken || 'none'}`);
+  if (!okContract || !primaryToken) { finish(); return; }
+  const tmp = doc.createElement('div'); tmp.style.color = 'var(--primary)'; doc.body.appendChild(tmp);
+  const PRIMARY_RGB = win.getComputedStyle(tmp).color; tmp.remove();
+  const SCREENS = win.SCREENS.map(s => typeof s === 'string' ? s : s.id);
+
+  const CLK = 'button,a[href],[onclick],[data-go],[data-jump],[role=button],input[type=button],input[type=submit]';
+  const css = el => win.getComputedStyle(el);
+  function vis(el) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return false;
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+      const c = css(e);
+      if (c.display === 'none' || c.visibility === 'hidden' || +c.opacity === 0) return false;
+    }
+    return true;
+  }
+  function topmost(el) {
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (x < 0 || y < 0 || x > W || y > H) return true; // 화면 밖(스크롤 아래)은 보이는 것으로 본다
+    const hit = doc.elementFromPoint(x, y);
+    return !!hit && (hit === el || el.contains(hit));
+  }
+  const txt = el => (el.innerText || el.value || '').replace(/\s+/g, ' ').trim();
+  const isPrimary = el => css(el).backgroundColor === PRIMARY_RGB;
+  const region = () => [doc.querySelector('.screen.on') || doc.body, ...doc.querySelectorAll('.dim.on')].filter(Boolean);
+  const clickablesIn = roots => { const s = new Set(); roots.forEach(r => r.querySelectorAll(CLK).forEach(e => { if (vis(e)) s.add(e); })); return [...s]; };
+  function show(id) { try { win.jump(id); } catch (e) { win.go(id, { force: true }); } }
+  function activeText() { return region().map(r => r.innerText).join(' | ').replace(/\s+/g, ' '); }
+  function snap() {
+    const parts = region().map(r => r.outerHTML);
+    doc.querySelectorAll('input,select,textarea').forEach(i => parts.push(i.value));
+    const on = doc.querySelector('.screen.on');
+    parts.push(on ? on.dataset.s || on.id : '');
+    return parts.join('|');
+  }
+  function clickText(label, opts = {}) {
+    const els = [...doc.querySelectorAll(CLK)].filter(vis).filter(e => opts.exact ? txt(e) === label : txt(e).includes(label));
+    const el = els[opts.index || 0];
+    if (el) el.click();
+    return el;
+  }
+
+  const EXP = {
+    notify: '시작하기', today: '운동 시작', cold: '운동 시작', detail: '운동 시작',
+    deadline: '이대로 할게요', skip: '10분만 하기', workout: '다음 동작', endsheet: '끝내고 기록하기',
+    done: '좋아지는 흐름 보기', error: '다시 저장하기', trend: '다음 운동 약속 정하기',
+    promise: '약속 정하기', records: '식사 하나 기록하기', me: null, loading: 0
+  };
+  const NAV_SCREENS = ['today', 'cold', 'deadline', 'trend', 'records', 'me'];
+
+  /* ---------- 데스크톱: 검토용 화면 목록은 기본으로 숨김 ---------- */
+  if (DESK) {
+    const panel = doc.getElementById('panel');
+    const opener = [...doc.querySelectorAll(CLK)].filter(vis).find(e => txt(e).includes('화면 목록'));
+    line('DESKTOP', 'review-panel', !(panel && vis(panel)) && !!opener && !isPrimary(opener), `panel_visible=${!!(panel && vis(panel))} opener=${!!opener}`);
+  }
+
+  /* ---------- 화면별: PRIMARY · DESKTOP · CONTRAST ---------- */
+  function contrast(c1, c2) {
+    const L = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+    const a = L(c1), b = L(c2); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  }
+  const parse = s => { const m = s.match(/rgba?\(([^)]+)\)/); if (!m) return [0, 0, 0, 0]; const p = m[1].split(',').map(Number); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; };
+  function bgOf(el) {
+    const chain = []; let img = false;
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) { const c = css(e); if (c.backgroundImage && c.backgroundImage !== 'none') img = true; chain.push(parse(c.backgroundColor)); }
+    let col = [255, 255, 255];
+    for (let i = chain.length - 1; i >= 0; i--) { const [r, g, b, a] = chain[i]; col = [r * a + col[0] * (1 - a), g * a + col[1] * (1 - a), b * a + col[2] * (1 - a)]; }
+    return { col, img };
+  }
+
+  for (const id of SCREENS) {
+    show(id); await sleep(20);
+    // PRIMARY
+    const prim = [...doc.querySelectorAll(CLK)].filter(vis).filter(topmost).filter(isPrimary);
+    const labels = prim.map(txt);
+    let ok;
+    if (id in EXP) {
+      const e = EXP[id];
+      ok = e === 0 ? prim.length === 0 : e === null ? prim.length <= 1 : (prim.length === 1 && labels[0] === e);
+    } else ok = prim.length <= 1;
+    line('PRIMARY', id, ok, `count=${prim.length} labels=${JSON.stringify(labels)}`);
+    // DESKTOP
+    if (DESK) {
+      const scr = doc.querySelector('.screen.on');
+      const wide = scr ? scr.getBoundingClientRect().width >= 720 : false;
+      const tab = [...doc.querySelectorAll('.tabbar')].some(vis);
+      let navOk = true;
+      if (NAV_SCREENS.includes(id)) {
+        const nav = [...doc.querySelectorAll('[aria-label="앱 메뉴"]')].find(vis);
+        const names = nav ? [...nav.querySelectorAll(CLK)].filter(vis).map(txt) : [];
+        navOk = !!nav && ['오늘', '기록', '변화', '나'].every(n => names.some(t => t === n || t.startsWith(n))) && nav.getBoundingClientRect().left < W * 0.3;
+      }
+      let inView = true;
+      if (prim.length === 1) { const r = prim[0].getBoundingClientRect(); inView = r.top >= 0 && r.left >= 0 && r.bottom <= H && r.right <= W; }
+      line('DESKTOP', id, wide && !tab && navOk && inView, `wide=${wide} tabbar=${tab} appnav=${navOk} primary_in_view=${inView}`);
+    }
+    // CONTRAST
+    const bad = [];
+    region().forEach(root => {
+      const tw = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let n;
+      while ((n = tw.nextNode())) {
+        const t = n.nodeValue.trim(); if (!t) continue;
+        const el = n.parentElement; if (!el || el.closest('svg') || !vis(el)) continue;
+        const c = css(el); const fg = parse(c.color); const { col, img } = bgOf(el); if (img) continue;
+        const fgc = [fg[0] * fg[3] + col[0] * (1 - fg[3]), fg[1] * fg[3] + col[1] * (1 - fg[3]), fg[2] * fg[3] + col[2] * (1 - fg[3])];
+        const size = parseFloat(c.fontSize), wt = +c.fontWeight || 400;
+        const need = (size >= 24 || (size >= 19 && wt >= 700)) ? 3 : 4.5;
+        const r = contrast(fgc, col);
+        if (r < need) bad.push(`${t.slice(0, 12)}(${r.toFixed(2)})`);
+      }
+    });
+    line('CONTRAST', id, bad.length === 0, `fails=${bad.length} ${bad.slice(0, 3).join(' ')}`);
+  }
+
+  /* ---------- ACTIONS ---------- */
+  line('ACTIONS', 'PLACEHOLDER', !doc.documentElement.outerHTML.includes('다음 버전에서'), '');
+  for (const id of SCREENS) {
+    show(id); await sleep(20);
+    const n = clickablesIn(region()).length;
+    const dead = [];
+    for (let i = 0; i < n; i++) {
+      show(id); await sleep(15);
+      const el = clickablesIn(region())[i]; if (!el) continue;
+      const label = txt(el) || el.getAttribute('aria-label') || el.outerHTML.slice(0, 30);
+      const before = snap();
+      el.click(); await sleep(30);
+      if (snap() === before) dead.push(label.slice(0, 20));
+    }
+    line('ACTIONS', `DEAD_CLICK:${id}`, dead.length === 0, `clicks=${n} dead=${JSON.stringify(dead)}`);
+    show(id); await sleep(15);
+    const fake = [];
+    region().forEach(root => root.querySelectorAll('*').forEach(el => {
+      if (!vis(el) || el.closest(CLK)) return;
+      if (css(el).cursor === 'pointer') fake.push(txt(el).slice(0, 16) || el.tagName);
+    }));
+    region().forEach(root => root.querySelectorAll('use').forEach(u => {
+      const h = u.getAttribute('href') || u.getAttribute('xlink:href');
+      if (h === '#i-chev' && !u.closest(CLK) && vis(u.closest('svg'))) fake.push('chev:' + txt(u.closest('svg').parentElement).slice(0, 16));
+    }));
+    line('ACTIONS', `FAKE_AFFORDANCE:${id}`, fake.length === 0, `fakes=${JSON.stringify(fake.slice(0, 4))}`);
+  }
+
+  /* ---------- STATE ---------- */
+  const setVal = (el, v) => { const d = Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, 'value'); d.set.call(el, v); el.dispatchEvent(new win.Event('input', { bubbles: true })); el.dispatchEvent(new win.Event('change', { bubbles: true })); };
+  const visInputs = () => [...doc.querySelectorAll('input:not([type=hidden]):not([type=button]):not([type=submit])')].filter(vis);
+  async function step(f) { try { return await f(); } catch (e) { return 'ERR ' + e.message; } }
+
+  // 몸무게 재기 → 변화 화면 반영
+  let r = await step(async () => {
+    show('trend'); await sleep(20);
+    if (!clickText('몸무게 재기')) return 'no_button';
+    await sleep(30);
+    const ins = visInputs(); if (!ins.length) return 'no_input';
+    setVal(ins[0], '72.4'); await sleep(15);
+    if (!clickText('저장')) return 'no_save';
+    await sleep(30); show('trend'); await sleep(20);
+    return activeText().includes('72.4') ? true : 'not_reflected';
+  });
+  line('STATE', 'weight', r === true, r === true ? '' : String(r));
+
+  // 식사 하나 기록하기 → 빈 끼니 채움
+  r = await step(async () => {
+    show('records'); await sleep(20);
+    clickText('식사', { exact: true }); await sleep(15);
+    const before = activeText();
+    if (!clickText('식사 하나 기록하기')) return 'no_button';
+    await sleep(30);
+    const ins = visInputs().filter(i => i.type === 'number' || i.inputMode === 'numeric' || i.inputMode === 'decimal');
+    if (!ins.length) return 'no_input';
+    ['57', '23', '11'].forEach((v, i) => ins[i] && setVal(ins[i], v)); await sleep(15);
+    if (!clickText('저장')) return 'no_save';
+    await sleep(30); show('records'); await sleep(20);
+    clickText('식사', { exact: true }); await sleep(15);
+    const after = activeText();
+    return after !== before && after.includes('57') ? true : 'not_reflected';
+  });
+  line('STATE', 'meal', r === true, r === true ? '' : String(r));
+
+  // 다른 코스 보기 → 오늘에 반영
+  r = await step(async () => {
+    show('today'); await sleep(20); const before = activeText();
+    show('detail'); await sleep(20);
+    if (!clickText('다른 코스 보기')) return 'no_button';
+    await sleep(30);
+    const cand = clickablesIn(region()).filter(e => txt(e).includes('코스') && !txt(e).includes('30분 헬스 코스') && !txt(e).includes('다른 코스'));
+    if (!cand.length) return 'no_course_option';
+    cand[0].click(); await sleep(30);
+    clickText('이 코스로'); await sleep(30);
+    show('today'); await sleep(20);
+    return activeText() !== before ? true : 'not_reflected';
+  });
+  line('STATE', 'course', r === true, r === true ? '' : String(r));
+
+  // 약속 시간 바꾸기
+  r = await step(async () => {
+    show('promise'); await sleep(20);
+    if (!clickText('바꾸기', { index: 0 })) return 'no_button';
+    await sleep(30);
+    const opt = clickablesIn(region()).find(e => /\b\d{1,2}:\d{2}\b/.test(txt(e)) && !txt(e).includes('18:20'));
+    if (!opt) return 'no_time_option';
+    const t = txt(opt).match(/\d{1,2}:\d{2}/)[0];
+    opt.click(); await sleep(30);
+    clickText('이 시간으로'); await sleep(30);
+    const on = doc.querySelector('.screen.on');
+    if (!on || on.dataset.s !== 'promise') { win.go('promise'); await sleep(20); }
+    return activeText().includes(t) ? true : 'not_reflected ' + t;
+  });
+  line('STATE', 'promise_time', r === true, r === true ? '' : String(r));
+
+  // 약속 코스 바꾸기
+  r = await step(async () => {
+    show('promise'); await sleep(20);
+    const btns = [...doc.querySelectorAll(CLK)].filter(vis).filter(e => txt(e).includes('바꾸기'));
+    if (btns.length < 2) return 'no_button';
+    const before = activeText();
+    btns[1].click(); await sleep(30);
+    const opt = clickablesIn(region()).find(e => txt(e).includes('코스') && !before.includes(txt(e)) && !txt(e).includes('바꾸기'));
+    if (!opt) return 'no_course_option';
+    const name = (txt(opt).match(/[\d]+분 [^·|]*코스/) || [txt(opt)])[0].trim();
+    opt.click(); await sleep(30);
+    clickText('이 코스로'); await sleep(30);
+    const on = doc.querySelector('.screen.on');
+    if (!on || on.dataset.s !== 'promise') { win.go('promise'); await sleep(20); }
+    return activeText().includes(name) ? true : 'not_reflected ' + name;
+  });
+  line('STATE', 'promise_course', r === true, r === true ? '' : String(r));
+
+  // 실내 코스 운동 시작
+  r = await step(async () => {
+    show('cold'); await sleep(20);
+    if (!clickText('운동 시작')) return 'no_button';
+    await sleep(30);
+    return activeText().includes('제자리 걷기') ? true : 'not_started';
+  });
+  line('STATE', 'indoor_workout', r === true, r === true ? '' : String(r));
+
+  // 10분 스트레칭
+  r = await step(async () => {
+    show('skip'); await sleep(20);
+    if (!clickText('10분만 하기')) return 'no_button';
+    await sleep(30);
+    const t = activeText();
+    return t.includes('스트레칭') && /\d\d:\d\d/.test(t) ? true : 'not_started';
+  });
+  line('STATE', 'stretch_workout', r === true, r === true ? '' : String(r));
+
+  finish();
+})();
+</script>
+</body>
+</html>
