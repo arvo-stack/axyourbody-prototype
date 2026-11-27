@@ -827,10 +827,10 @@ svg.chart{width:100%;height:170px;display:block}
   function openCourses(){ S.pick = S.course; go('courses', {force:true}); renderCourses(); }
   function renderCourses(){
     $('#courseOpts').innerHTML = COURSE_ORDER.map(k => courseOpt(k, k===S.pick, 'pickCourse')).join('');
-    $('#courseHint').textContent = `${COURSES[S.pick].name}을 골랐어요`;
+    $('#courseHint').textContent = `고른 코스: ${COURSES[S.pick].name}`;
   }
   function pickCourse(k){ S.pick = k; renderCourses(); }
-  function applyCourse(){ S.course = S.pick; S.pCourse = S.pick; go('today', {force:true}); toast(`오늘 운동을 ${COURSES[S.course].name}로 바꿨어요`); }
+  function applyCourse(){ S.course = S.pick; S.pCourse = S.pick; go('today', {force:true}); toast(`오늘 운동을 바꿨어요: ${COURSES[S.course].name}`); }
 
   /* ----- 운동 중 ----- */
   const fmt = sec => `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
@@ -862,7 +862,7 @@ svg.chart{width:100%;height:170px;display:block}
   function doneMinutes(){ const st = steps(); return st.slice(0, S.step).reduce((a,s)=>a+s.min,0) + Math.floor((st[S.step].min*60 - S.remain)/60); }
   function openEndSheet(){
     const m = Math.max(1, doneMinutes());
-    $('#endText').textContent = `지금까지 ${m}분, 동작 ${S.step}/${steps().length}를 했어요. 여기까지도 운동 기록으로 남아요.`;
+    $('#endText').textContent = `지금까지 ${m}분 동안 동작 ${steps().length}개 중 ${S.step}개를 했어요. 여기까지도 운동 기록으로 남아요.`;
     $('#endSheet').classList.add('on');
   }
   function closeEndSheet(){ $('#endSheet').classList.remove('on'); }

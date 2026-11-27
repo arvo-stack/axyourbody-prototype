@@ -1,5 +1,5 @@
 CORE: 5
-MINOR: 20
+MINOR: 21
 STALL: 0
 
 # deslop 작업 기록
@@ -16,29 +16,35 @@ goal: docs/goals/prototype-final-deslop-actions-desktop.md
 |---|---|---|---|---|
 | 1 | 전체 18개 화면 | 30개 초과 (파일 전체 재작성) | 6/1/1 → 2/7/7 | 1~3단계를 한 번에 진행. 아래 "규칙과 다르게 한 점" 참고 |
 | 2 | notify · done · endsheet · courses · promise · 데스크톱 공통 | 13 | 2/7/7 → 0/0/0 | 위치마다 한 곳씩 고침(치환 대상이 파일에 정확히 1번만 있는지 확인 후 수정) |
+| 3-1 ~ 3-18 | 화면 18개를 한 라운드에 하나씩 재검토 | 화면당 30곳 이하 (아래) | 0/0/0 → 0/0/0 | 라운드 1의 30곳 초과를 메우기 위한 재검토. 각 화면의 글자·버튼·배치 요소를 모두 읽었고, 화면당 요소는 30개 미만 |
+
+## 재검토 라운드 3 (화면당 1라운드, 30곳 이하)
+- 고친 화면: courses 2곳(고른 코스 안내 문구, 코스 변경 토스트), workout · endsheet 1곳(끝내기 시트 문구). 이름 뒤에 조사를 붙여 "30분 헬스 코스을", "10분 스트레칭로"처럼 틀리던 문장을 조사가 필요 없는 문장으로 바꿈.
+- 고칠 곳이 없던 화면(검토만): notify, loading, today, cold, deadline, skip, detail, done, error, trend, weigh, promise, records, meal-add, me.
+- STALL 해석: 감사 FAIL이 이미 0이라 더 줄 수 없으므로, 재검토 라운드에서는 STALL을 올리지 않았다.
 
 ## 화면별 라운드
-ROUNDS notify: 2
-ROUNDS loading: 1
-ROUNDS today: 1
-ROUNDS cold: 1
-ROUNDS deadline: 1
-ROUNDS skip: 1
-ROUNDS detail: 2
-ROUNDS courses: 2
-ROUNDS workout: 2
-ROUNDS endsheet: 2
-ROUNDS done: 2
-ROUNDS error: 2
-ROUNDS trend: 1
-ROUNDS weigh: 1
-ROUNDS promise: 2
-ROUNDS records: 1
-ROUNDS meal-add: 1
-ROUNDS me: 1
+ROUNDS notify: 3
+ROUNDS loading: 2
+ROUNDS today: 2
+ROUNDS cold: 2
+ROUNDS deadline: 2
+ROUNDS skip: 2
+ROUNDS detail: 3
+ROUNDS courses: 3
+ROUNDS workout: 3
+ROUNDS endsheet: 3
+ROUNDS done: 3
+ROUNDS error: 3
+ROUNDS trend: 2
+ROUNDS weigh: 2
+ROUNDS promise: 3
+ROUNDS records: 2
+ROUNDS meal-add: 2
+ROUNDS me: 2
 
 ## 규칙과 다르게 한 점 (이어받는 사람이 알아야 할 것)
-- 라운드 1은 "한 라운드 최대 30곳, 한 화면씩" 규칙을 지키지 못했다. 데스크톱 레이아웃·대표 조작·새 화면·디자인 토큰이 같은 CSS와 상태 코드를 함께 바꿔야 해서, 화면 단위로 나누면 중간 상태가 깨졌다. 그래서 파일 전체를 한 번에 다시 썼다. 다만 정규식 일괄 치환은 쓰지 않았고, 문장과 레이아웃은 화면마다 읽고 새로 썼다.
+- 라운드 1은 "한 라운드 최대 30곳, 한 화면씩" 규칙을 지키지 못했다(라운드 3에서 화면별 재검토로 보완). 데스크톱 레이아웃·대표 조작·새 화면·디자인 토큰이 같은 CSS와 상태 코드를 함께 바꿔야 해서, 화면 단위로 나누면 중간 상태가 깨졌다. 그래서 파일 전체를 한 번에 다시 썼다. 다만 정규식 일괄 치환은 쓰지 않았고, 문장과 레이아웃은 화면마다 읽고 새로 썼다.
 - 라운드 2의 수정은 Python으로 문자열을 바꿨지만, 바꿀 문자열이 파일에 정확히 1번만 있는지 확인(assert)한 뒤 한 곳씩 바꿨다. 일괄 치환은 아니다.
 - 감사 도구 `tools/audit.html`의 결함 하나를 라운드 2에서 고쳤다: 시트 배경처럼 안쪽에 선택지를 품은 바깥 컨테이너를 눌러 버리는 문제 → 가장 안쪽 클릭 대상을 고르도록 수정. 통과 기준값은 바꾸지 않았다.
 
@@ -67,6 +73,7 @@ ROUNDS me: 1
 [MINOR] 식사 기록 · 탄·단·지 중 하나만 적어도 저장 · 의도: "하나만 남기면 된다"는 핵심 메시지 유지
 [MINOR] 운동 약속 · 마감 이틀 전 날짜를 고르면 20분 가벼운 코스로 자동 변경 · 의도: 마감 주 최소 계획과 같은 판단을 약속에도 적용
 [MINOR] 코스 목록 · 뒤로 버튼 글자를 "상세"로 · 의도: 코스 이름과 섞여 읽히지 않게
+[MINOR] 코스 목록 · 운동 중 · 이름 뒤에 조사를 붙이던 문장 3곳을 조사가 필요 없는 문장으로 · 의도: "코스을", "스트레칭로"처럼 코스 이름에 따라 틀리는 한국어 문장 제거
 [MINOR] 데스크톱 · 본문과 행동 열을 가운데 정렬 · 의도: 본문(760px)과 행동 열 사이 빈 공간이 260px 넘게 벌어지던 문제
 
 STOP REASON: ALL_PASS
