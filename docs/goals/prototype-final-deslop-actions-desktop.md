@@ -3,7 +3,8 @@
 ## 1) 작업 핵심 목표 및 범위
 - 목표: `prototype-final.html`이 아래 6)의 세 가지 기준(AI 슬롭 · 조작 완비 · 대표 조작 하나)을 화면마다 모두 통과해, 감사 명령 세 개가 각각 `AUDIT_RESULT:ALL_PASS`를 출력하는 상태로 만든다.
 - 시작 지점: 저장소 `axyourbody-prototype`의 현재 `main` HEAD(`507a3b5` 이후). 먼저 `git status --porcelain`과 `git branch -a`를 실행해 결과를 대화에 남긴다.
-- 작업 대상: 루트의 `prototype-final.html` 한 파일(단독 실행 HTML 유지). 감사 도구 `tools/audit_static.py`, `tools/audit.html`과 작업 기록 `docs/goals/logs/deslop-log.md`는 새로 만든다.
+- 작업 대상: 루트의 `prototype-final.html` **한 파일만** 수정한다(단독 실행 HTML 유지). 감사 도구 `tools/audit_static.py`, `tools/audit.html`은 이미 있으므로 읽기·실행만 한다. 작업 기록 `docs/goals/logs/deslop-log.md`는 기록용으로만 덧붙인다.
+- 참조 파일: 작업 기준은 흩어진 원본 대신 통합 사본 **한 파일** `/Users/jisooim/Desktop/axyourbody-prototype-copy/reference-integrated.md`만 읽는다(읽기 전용).
 - 작업 자율성:
   - 화면마다 **핵심 메시지의 방향**(아래 표)을 바꾸지 않는 한, 레이아웃·문구·위계·컴포넌트 표현은 사용자 확인 없이 충분히 고친다.
   - 사용자에게 질문하지 않는다. 판단이 필요한 지점에서는 스스로 결정하고, 결정마다 나중에 이어받을 사람을 위한 **의도 설명**을 기록한다(2)의 결정 기록 형식).
@@ -21,14 +22,14 @@
 | 기록(빈 상태) · 나 | 비어 있어도 괜찮고, 하나만 남기면 된다 |
 
 ## 2) 작업 세부 규칙
-- 참고 문서(읽기 전용): `context/service-structure.md`(5장 사용자 용어 · 8장 "하지 말 것"), `context/screen-flow.md`, `context/screen-layouts.md`.
+- 참고 문서(읽기 전용, 한 파일): `/Users/jisooim/Desktop/axyourbody-prototype-copy/reference-integrated.md`. 1장 서비스 구조 설명서(그 안의 "5. 화면에 쓸 말"이 사용자 용어, "8. 하지 말 것"이 금지 사항), 2장 화면 흐름, 3장 레이아웃 명세, 4장 데이터(CSV 4개). 저장소의 `context/`·`data/` 원본은 열지 않는다.
 - **고치는 방식: 일괄 코드 처리 금지, 위치마다 읽고 판단한다.**
   - `sed`·정규식 일괄 치환·스크립트로 여러 위치를 한꺼번에 바꾸지 않는다. 고칠 위치를 하나씩 읽고, 그 자리의 맥락(화면, 핵심 메시지, 주변 요소)에 맞는 표현을 골라 개별로 수정한다.
   - 감사 도구는 **찾기와 증명에만** 쓴다. 감사가 FAIL로 짚은 위치도 같은 방식으로 하나씩 검토해 고친다.
   - 슬롭 신호가 기계적으로는 통과해도 문장·위계가 여전히 "어디서나 쓸 수 있는 말"이면 고친다(예: 경쟁 서비스가 그대로 써도 되는 문장).
 - **라운드 단위:** 한 라운드 = 한 화면을 골라 검토 → 고치기 → 감사 재실행 → 기록. 한 라운드에서 고치는 위치는 최대 30개. 같은 화면은 최대 5라운드까지 반복한다.
 - 단계 순서. 각 단계가 끝날 때마다 감사를 다시 실행하고 출력을 대화에 남긴 뒤 커밋한다.
-  - 0단계: 작업 브랜치 준비(4) 참고)와 감사 도구 작성. 6)의 기준을 그대로 코드로 옮기고 기준값을 느슨하게 바꾸지 않는다. 고치기 전 결과를 한 번 실행해 대화에 남긴다(기준선).
+  - 0단계: 작업 브랜치 준비(4) 참고)와 통합 참조 파일 확인. 감사 도구는 이미 6)의 기준을 구현해 두었으므로 수정하지 않는다. 고치기 전 결과를 한 번 실행해 대화에 남긴다(기준선).
   - 1단계: AI 슬롭 개선 → `audit_static.py` 통과.
   - 2단계: 화면에 암시된 조작 완비 → `audit.html`의 ACTIONS 항목 통과.
   - 3단계: 데스크톱 레이아웃과 대표 조작 하나 → `audit.html`의 PRIMARY · DESKTOP · CONTRAST 항목을 1440×900과 390×844에서 모두 통과.
@@ -55,14 +56,14 @@
 - 종료 방법:
   1) `docs/goals/logs/deslop-log.md` 마지막에 `STOP REASON: <코드>` 한 줄과, 이어받는 사람을 위한 **인수 메모**(남은 FAIL 목록 · CORE 결정 요약 · 다음에 할 일 3줄 이내)를 덧붙이고 커밋한 뒤 작업 브랜치를 push한다.
   2) 2)의 감사 명령 세 개를 실행해 `AUDIT_LINE`·`AUDIT_RESULT` 출력 전체를 대화에 남긴다.
-  3) `git status --porcelain`, `git log --oneline -15`, `git diff --stat main...HEAD`, `git branch -vv`, `cat docs/goals/logs/deslop-log.md`를 실행해 출력을 대화에 남긴다. `git diff --stat`에는 4)에서 허용한 경로만 보여야 하고, `git branch -vv`에는 작업 브랜치가 원격을 추적하는 것이 보여야 한다.
+  3) `git status --porcelain`, `git log --oneline -15`, `git diff --stat <0단계 시작 커밋>..HEAD`, `git branch -vv`, `cat docs/goals/logs/deslop-log.md`를 실행해 출력을 대화에 남긴다. `git diff --stat`에는 `prototype-final.html`과 `docs/goals/logs/deslop-log.md`만 보여야 하고, `git branch -vv`에는 작업 브랜치가 원격을 추적하는 것이 보여야 한다.
 
 ## 4) 기타 제약조건
 - 작업 브랜치: `goal/prototype-final-deslop-actions-desktop`. 0단계에서 이미 있으면 그대로 쓰고, 없으면 `main`에서 만든 뒤 `git push -u origin goal/prototype-final-deslop-actions-desktop`으로 원격에 올린다. 나중에 사용자가 `main` 기준으로 통합할 수 있게 이 브랜치에서만 작업한다.
 - `main`에 커밋·병합·push하지 않는다. force push, 브랜치 삭제, 강제 리셋을 하지 않는다.
-- 수정·커밋할 수 있는 경로: `prototype-final.html`, `tools/audit_static.py`, `tools/audit.html`, `docs/goals/logs/`, 그리고 이 goal 파일 자체(내용은 수정하지 않고 브랜치에 커밋만 허용). 그 밖의 파일(`context/`, `data/`, `worksheet.md`, `profile.md`, `README.md`, `context/stitch_.zip`)은 수정하거나 커밋하지 않는다.
+- 수정할 수 있는 파일은 `prototype-final.html` 하나다. `docs/goals/logs/deslop-log.md`는 기록을 덧붙이는 용도로만 쓴다. 그 밖의 파일(`tools/`, 이 goal 파일, `context/`, `data/`, `worksheet.md`, `profile.md`, `README.md`, `context/stitch_.zip`, 통합 참조 파일 `/Users/jisooim/Desktop/axyourbody-prototype-copy/reference-integrated.md`)은 수정하거나 커밋하지 않는다.
 - 새 화면·메뉴·기능을 만들지 않는다. **예외:** 6-2에 적힌 "반드시 동작해야 하는 조작"에 필요한 화면, 그리고 기존 기획에서 기능과 기능, 화면과 화면 사이에 끊기는 지점이 있어 부드럽게 이어 줄 연결이 필요한 경우에는 만들 수 있다. 이 예외로 만든 화면은 CORE 결정으로 기록하고 어느 끊김을 메웠는지 의도에 적는다.
-- 단독 HTML 유지: 외부 `<script src>`·`<link href>`·원격 이미지·웹폰트를 쓰지 않는다. 데이터는 `data/` CSV에 있는 값이나 화면에 "예시"로 밝힌 값만 쓴다. 칼로리·심박수처럼 데이터에 없는 수치를 새로 만들지 않는다.
+- 단독 HTML 유지: 외부 `<script src>`·`<link href>`·원격 이미지·웹폰트를 쓰지 않는다. 데이터는 통합 참조 파일 4장(CSV 4개)에 있는 값이나 화면에 "예시"로 밝힌 값만 쓴다. 칼로리·심박수처럼 데이터에 없는 수치를 새로 만들지 않는다.
 - 실제 이름·연락처·실제 신체 수치를 넣지 않는다. 사용자는 `my-general`로만 표시한다.
 - 감사를 통과시키려고 기능을 지우지 않는다. 기존 화면(기본 흐름 7 · 갈림길 A~D · 상태 4 · 나)과 그 동작은 모두 남아 있어야 한다.
 
